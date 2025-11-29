@@ -28,8 +28,8 @@ export default function Footer() {
           <div className="footer-section">
             <h4>Contact Direct</h4>
             <p>
-              <a href="https://wa.me/772509543" target="_blank" rel="noopener noreferrer">
-                WhatsApp: +212 772 509 543
+              <a href="https://wa.me/221772509543" target="_blank" rel="noopener noreferrer">
+                WhatsApp: +221 77 250 95 43
               </a>
             </p>
           </div>

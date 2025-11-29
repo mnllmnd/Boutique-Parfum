@@ -8,5 +8,10 @@
       "source": "/(.*)",
       "destination": "/index.html"
     }
-  ]
+  ],
+  "env": {
+    "ADMIN_TOKEN": "@admin_token",
+    "CLOUDINARY_CLOUD_NAME": "@cloudinary_cloud_name",
+    "CLOUDINARY_UPLOAD_PRESET": "@cloudinary_upload_preset"
+  }
 }
