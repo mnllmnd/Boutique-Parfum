@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import './Hero.css'
 
 const HERO_IMAGES = [
-  { id: 'hero-1', url: 'https://i.pinimg.com/1200x/94/a9/93/94a993434c3339447bf29dc172736257.jpg' },
+  { id: 'hero-1', url: 'https://i.pinimg.com/736x/3f/4d/06/3f4d0601a6a4316a77d0e03c853c9061.jpg' },
   { id: 'hero-2', url: 'https://i.pinimg.com/736x/67/5d/df/675ddf4c5d7f1ceacff15d0f9f826197.jpg' },
   { id: 'hero-3', url: 'https://i.pinimg.com/736x/9b/92/08/9b92084657e8d2ecebb6b95f3e82362e.jpg' }
 ]
