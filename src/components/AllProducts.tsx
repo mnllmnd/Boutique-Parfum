@@ -5,44 +5,44 @@ import ProductDetails from './ProductDetails'
 const ALL_PRODUCTS = [
   {
     id: 1,
-    name: 'Essence Nocturne',
+    name: 'Sauvage Dior',
     description: 'Mystérieux et profond',
     notes: 'Oud, Musc, Ambre',
     image: 'https://res.cloudinary.com/dcs9vkwe0/image/upload/v1764370046/glfa56la7ffzfwwtrmox.jpg',
-    fullDescription: 'Essence Nocturne est un parfum mystérieux et profond qui capture l\'essence de la nuit. Ses notes envoûtantes d\'oud, de musc et d\'ambre créent une symphonie olfactive intemporelle, parfaite pour les moments de luxe et de contemplation.',
+    fullDescription: 'Sauvage Dior est un parfum mystérieux et profond qui capture l\'essence de la nuit. Ses notes envoûtantes d\'oud, de musc et d\'ambre créent une symphonie olfactive intemporelle, parfaite pour les moments de luxe et de contemplation.',
     topNotes: 'Épices, Bergamote',
     heartNotes: 'Oud, Patchouli',
     baseNotes: 'Musc, Ambre, Vanille'
   },
   {
     id: 2,
-    name: 'Aura Cristalline',
+    name: 'Black Orchid',
     description: 'Frais et élégant',
     notes: 'Bergamote, Citron, Muscat',
     image: 'https://res.cloudinary.com/dcs9vkwe0/image/upload/v1764370176/bolvyr9baf9emcu8j8kz.jpg',
-    fullDescription: 'Aura Cristalline respire la fraîcheur et l\'élégance. Les notes lumineuses de bergamote, citron et muscat se mélangent harmonieusement pour créer une fragrance pétillante et sophistiquée, idéale pour les jours lumineux.',
+    fullDescription: 'Black Orchid respire la fraîcheur et l\'élégance. Les notes lumineuses de bergamote, citron et muscat se mélangent harmonieusement pour créer une fragrance pétillante et sophistiquée, idéale pour les jours lumineux.',
     topNotes: 'Citron, Bergamote, Grapefruit',
     heartNotes: 'Fleur de Muscat, Neroli',
     baseNotes: 'Musc blanc, Ambroxan'
   },
   {
     id: 3,
-    name: 'Velours Nocturne',
+    name: 'Dolce & Gabbana',
     description: 'Sensuel et riche',
     notes: 'Rose, Jasmin, Vanille',
     image: 'https://res.cloudinary.com/dcs9vkwe0/image/upload/v1764370176/wo9tqfsflbyuh2js7jnw.jpg',
-    fullDescription: 'Velours Nocturne enveloppe l\'âme de sensualité et de richesse. Les pétales délicats de rose et de jasmin se fondent avec la chaleur enveloppante de la vanille, créant une expérience olfactive irrésistible et intime.',
+    fullDescription: 'Dolce & Gabbana enveloppe l\'âme de sensualité et de richesse. Les pétales délicats de rose et de jasmin se fondent avec la chaleur enveloppante de la vanille, créant une expérience olfactive irrésistible et intime.',
     topNotes: 'Framboise, Poivre Rose',
     heartNotes: 'Rose Bulgare, Jasmin Sambac',
     baseNotes: 'Vanille de Tahiti, Musc, Bois de Santal'
   },
   {
     id: 4,
-    name: 'Signature Luxe',
+    name: 'Burberry',
     description: 'Intemporel et noble',
     notes: 'Sandalwood, Vetiver, Cèdre',
     image: 'https://res.cloudinary.com/dcs9vkwe0/image/upload/v1764374734/lo2o7tbxdcqqdgsaz4ls.png',
-    fullDescription: 'Signature Luxe incarne l\'intemporalité et la noblesse. Le sandalwood lisse, le vétiver élégant et le cèdre majestueux s\'orchestrent pour créer une fragrance raffinée qui résiste aux modes et au temps, symbole de vrai luxe.',
+    fullDescription: 'Burberry incarne l\'intemporalité et la noblesse. Le sandalwood lisse, le vétiver élégant et le cèdre majestueux s\'orchestrent pour créer une fragrance raffinée qui résiste aux modes et au temps, symbole de vrai luxe.',
     topNotes: 'Citron, Cardamome',
     heartNotes: 'Vétiver, Iris',
     baseNotes: 'Bois de Santal, Cèdre, Musc'

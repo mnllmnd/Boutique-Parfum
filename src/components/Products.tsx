@@ -5,22 +5,22 @@ import ProductDetails from './ProductDetails'
 const PRODUCTS = [
   {
     id: 1,
-    name: 'Essence Nocturne',
+    name: 'Sauvage Dior',
     image: 'https://res.cloudinary.com/dcs9vkwe0/image/upload/v1764370046/glfa56la7ffzfwwtrmox.jpg'
   },
   {
     id: 2,
-    name: 'Aura Cristalline',
+    name: 'Black Orchid',
     image: 'https://res.cloudinary.com/dcs9vkwe0/image/upload/v1764370176/bolvyr9baf9emcu8j8kz.jpg'
   },
   {
     id: 3,
-    name: 'Velours Nocturne',
+    name: 'Dolce & Gabbana',
     image: 'https://res.cloudinary.com/dcs9vkwe0/image/upload/v1764370176/wo9tqfsflbyuh2js7jnw.jpg'
   },
   {
     id: 4,
-    name: 'Signature Luxe',
+    name: 'Burberry',
     image: 'https://res.cloudinary.com/dcs9vkwe0/image/upload/v1764374734/lo2o7tbxdcqqdgsaz4ls.png'
   }
 ]
