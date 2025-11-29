@@ -256,7 +256,6 @@
 .info-card:hover {
   transform: translateY(-6px);
   box-shadow: 0 15px 40px rgba(212, 175, 55, 0.15);
-  border-color: #d4af37;
 }
 
 .info-card.whatsapp-card {
@@ -265,7 +264,6 @@
 }
 
 .info-card.whatsapp-card:hover {
-  border-color: #25d366;
   box-shadow: 0 15px 40px rgba(37, 211, 102, 0.15);
 }
 

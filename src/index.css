@@ -30,6 +30,10 @@ body,
   width: 100%;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 a {
   color: var(--accent-color);
   text-decoration: none;
