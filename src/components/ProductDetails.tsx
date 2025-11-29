@@ -11,7 +11,8 @@ const PRODUCTS = [
     fullDescription: 'Essence Nocturne est un parfum mystérieux et profond qui capture l\'essence de la nuit. Ses notes envoûtantes d\'oud, de musc et d\'ambre créent une symphonie olfactive intemporelle, parfaite pour les moments de luxe et de contemplation.',
     topNotes: 'Épices, Bergamote',
     heartNotes: 'Oud, Patchouli',
-    baseNotes: 'Musc, Ambre, Vanille'
+    baseNotes: 'Musc, Ambre, Vanille',
+    audioUrl: 'https://res.cloudinary.com/dcs9vkwe0/video/upload/v1764400439/su8anss8b3fdqba3zus9.mp4'
   },
   {
     id: 2,
@@ -22,7 +23,8 @@ const PRODUCTS = [
     fullDescription: 'Aura Cristalline respire la fraîcheur et l\'élégance. Les notes lumineuses de bergamote, citron et muscat se mélangent harmonieusement pour créer une fragrance pétillante et sophistiquée, idéale pour les jours lumineux.',
     topNotes: 'Citron, Bergamote, Grapefruit',
     heartNotes: 'Fleur de Muscat, Neroli',
-    baseNotes: 'Musc blanc, Ambroxan'
+    baseNotes: 'Musc blanc, Ambroxan',
+    audioUrl: 'https://res.cloudinary.com/dcs9vkwe0/video/upload/v1764370176/audio2.mp3'
   },
   {
     id: 3,
@@ -33,7 +35,8 @@ const PRODUCTS = [
     fullDescription: 'Velours Nocturne enveloppe l\'âme de sensualité et de richesse. Les pétales délicats de rose et de jasmin se fondent avec la chaleur enveloppante de la vanille, créant une expérience olfactive irrésistible et intime.',
     topNotes: 'Framboise, Poivre Rose',
     heartNotes: 'Rose Bulgare, Jasmin Sambac',
-    baseNotes: 'Vanille de Tahiti, Musc, Bois de Santal'
+    baseNotes: 'Vanille de Tahiti, Musc, Bois de Santal',
+    audioUrl: 'https://res.cloudinary.com/dcs9vkwe0/video/upload/v1764370176/audio3.mp3'
   },
   {
     id: 4,
@@ -44,7 +47,8 @@ const PRODUCTS = [
     fullDescription: 'Signature Luxe incarne l\'intemporalité et la noblesse. Le sandalwood lisse, le vétiver élégant et le cèdre majestueux s\'orchestrent pour créer une fragrance raffinée qui résiste aux modes et au temps, symbole de vrai luxe.',
     topNotes: 'Citron, Cardamome',
     heartNotes: 'Vétiver, Iris',
-    baseNotes: 'Bois de Santal, Cèdre, Musc'
+    baseNotes: 'Bois de Santal, Cèdre, Musc',
+    audioUrl: 'https://res.cloudinary.com/dcs9vkwe0/video/upload/v1764374734/audio4.mp3'
   }
 ]
 
@@ -95,17 +99,31 @@ export default function ProductDetails({ productId, onClose }: ProductDetailsPro
               className="details-image"
             />
             <div className="swipe-indicator">
-  <svg className="swipe-arrow" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M5 12h14m-7-7l7 7-7 7"/>
-  </svg>
-  <span className="swipe-text">Swipe</span>
-</div>
+    <svg className="swipe-arrow" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M5 12h14m-7-7l7 7-7 7"/>
+    </svg>
+    <span className="swipe-text">Swipe</span>
+    </div>
           </div>
 
           <div className="details-content-section">
             <div className="details-header">
               <h1 className="details-title">{product.name}</h1>
               <div className="details-divider"></div>
+              {product.audioUrl && (
+                <div className="audio-player">
+                  <div className="audio-icon">🎵</div>
+                  <audio 
+                    controls 
+                    className="audio-control"
+                    controlsList="nodownload"
+                    aria-label={`Écouter la description de ${product.name}`}
+                  >
+                    <source src={product.audioUrl} type="audio/mpeg" />
+                    Votre navigateur ne supporte pas l'audio HTML5
+                  </audio>
+                </div>
+              )}
             </div>
 
             <div className="details-body">

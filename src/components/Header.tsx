@@ -1,14 +1,22 @@
 import './Header.css'
 
-export default function Header() {
+interface HeaderProps {
+  readonly onNavigate: (page: 'home' | 'products') => void
+}
+
+export default function Header({ onNavigate }: HeaderProps) {
   return (
     <header className="header">
       <div className="container">
-        <div className="logo">LUXE</div>
+        <button className="logo" onClick={() => onNavigate('home')} aria-label="Accueil">
+          LUXE
+        </button>
         <nav className="nav">
-          <a href="#products">Produits</a>
-          <a href="/about">À propos</a>
-          <a href="#contact">Contact</a>
+          <button onClick={() => onNavigate('products')} className="nav-link">
+            Produits
+          </button>
+          <a href="#about" className="nav-link">À propos</a>
+          <a href="#contact" className="nav-link">Contact</a>
         </nav>
       </div>
     </header>

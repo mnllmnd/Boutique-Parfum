@@ -166,36 +166,35 @@
 
 @media (max-width: 480px) {
   .hero {
-    height: 50vh;
-    min-height: 400px;
+    height: 60vh;
   }
 
   .hero-title {
-    font-size: 1.5rem;
-    margin-bottom: 0.3rem;
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
   }
 
   .hero-subtitle {
-    font-size: 0.75rem;
-    margin-bottom: 1rem;
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
   }
 
   .hero-cta {
-    padding: 0.6rem 1.2rem;
-    font-size: 0.65rem;
+    padding: 0.7rem 1.5rem;
+    font-size: 0.75rem;
   }
 
   .hero-indicators {
-    bottom: 0.6rem;
-    gap: 0.4rem;
+    bottom: 0.8rem;
+    gap: 0.5rem;
   }
 
   .indicator {
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
   }
 
   .indicator.active {
-    width: 20px;
+    width: 24px;
   }
 }

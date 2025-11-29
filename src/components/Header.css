@@ -24,6 +24,10 @@
   text-transform: uppercase;
   cursor: pointer;
   transition: opacity 0.3s ease;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
 }
 
 .logo:hover {
@@ -36,16 +40,21 @@
   align-items: center;
 }
 
-.nav a {
+.nav-link {
   font-size: 0.95rem;
   letter-spacing: 1px;
   color: var(--text-color);
   text-transform: uppercase;
   position: relative;
   padding-bottom: 0.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  transition: color 0.3s ease;
 }
 
-.nav a::after {
+.nav-link::after {
   content: '';
   position: absolute;
   bottom: 0;
@@ -56,7 +65,7 @@
   transition: width 0.3s ease;
 }
 
-.nav a:hover::after {
+.nav-link:hover::after {
   width: 100%;
 }
 
@@ -74,7 +83,7 @@
     gap: 1.2rem;
   }
 
-  .nav a {
+  .nav-link {
     font-size: 0.75rem;
     letter-spacing: 0.5px;
   }
@@ -97,7 +106,7 @@
     width: auto;
   }
 
-  .nav a {
+  .nav-link {
     font-size: 0.6rem;
     letter-spacing: 0.3px;
   }
