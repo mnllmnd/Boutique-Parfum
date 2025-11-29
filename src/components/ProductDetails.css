@@ -435,7 +435,7 @@
 .accordion-icon {
   flex-shrink: 0;
   transition: transform 0.3s ease;
-  color: inherit;
+  color: #d4af37;
 }
 
 .accordion-header.active .accordion-icon {
@@ -512,7 +512,7 @@
   justify-content: center;
   gap: 0.8rem;
   padding: 1.2rem 2.5rem;
-  background: linear-gradient(135deg, #25d366 0%, #20ba5a 100%);
+  background: linear-gradient(135deg, #25d36500 0%, #20ba5b00 100%);
   color: #ffffff;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -542,7 +542,7 @@
 }
 
 .details-whatsapp-btn:hover {
-  background: linear-gradient(135deg, #20ba5a 0%, #1ba352 100%);
+  background: linear-gradient(135deg, #20ba5b00 0%, #1ba35100 100%);
   transform: translateY(-3px);
   box-shadow: 0 12px 30px rgba(37, 211, 102, 0.3);
 }
