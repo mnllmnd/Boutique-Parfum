@@ -1,7 +1,7 @@
 import './Header.css'
 
 interface HeaderProps {
-  readonly onNavigate: (page: 'home' | 'products') => void
+  readonly onNavigate: (page: 'home' | 'products' | 'contact') => void
 }
 
 export default function Header({ onNavigate }: HeaderProps) {
@@ -16,7 +16,6 @@ export default function Header({ onNavigate }: HeaderProps) {
           <span className="logo-text">LUXE</span>
           <span className="logo-subtitle">Dakar</span>
         </button>
-        
         <nav className="nav">
           <button 
             onClick={() => onNavigate('products')} 
@@ -28,9 +27,13 @@ export default function Header({ onNavigate }: HeaderProps) {
           <a href="#about" className="nav-link">
             <span className="nav-text">Histoire</span>
           </a>
-          <a href="#contact" className="nav-link">
+          <button 
+            onClick={() => onNavigate('contact')} 
+            className="nav-link"
+            aria-label="Nous contacter"
+          >
             <span className="nav-text">Contact</span>
-          </a>
+          </button>
         </nav>
 
         <div className="header-actions">

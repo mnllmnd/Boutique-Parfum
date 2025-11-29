@@ -11,8 +11,7 @@ const PRODUCTS = [
     fullDescription: 'Sauvage Dior est un parfum mystérieux et profond qui capture l\'essence de la nuit. Ses notes envoûtantes d\'oud, de musc et d\'ambre créent une symphonie olfactive intemporelle, parfaite pour les moments de luxe et de contemplation.',
     topNotes: 'Épices, Bergamote',
     heartNotes: 'Oud, Patchouli',
-    baseNotes: 'Musc, Ambre, Vanille',
-    audioUrl: 'https://res.cloudinary.com/dcs9vkwe0/video/upload/v1764411795/flywthxunahtxut6gicx.mp4'
+    baseNotes: 'Musc, Ambre, Vanille'
   },
   {
     id: 2,
@@ -23,8 +22,7 @@ const PRODUCTS = [
     fullDescription: 'Black Orchid respire la fraîcheur et l\'élégance. Les notes lumineuses de bergamote, citron et muscat se mélangent harmonieusement pour créer une fragrance pétillante et sophistiquée, idéale pour les jours lumineux.',
     topNotes: 'Citron, Bergamote, Grapefruit',
     heartNotes: 'Fleur de Muscat, Neroli',
-    baseNotes: 'Musc blanc, Ambroxan',
-    audioUrl: 'https://res.cloudinary.com/dcs9vkwe0/video/upload/v1764370176/audio2.mp3'
+    baseNotes: 'Musc blanc, Ambroxan'
   },
   {
     id: 3,
@@ -35,8 +33,7 @@ const PRODUCTS = [
     fullDescription: 'Dolce & Gabbana enveloppe l\'âme de sensualité et de richesse. Les pétales délicats de rose et de jasmin se fondent avec la chaleur enveloppante de la vanille, créant une expérience olfactive irrésistible et intime.',
     topNotes: 'Framboise, Poivre Rose',
     heartNotes: 'Rose Bulgare, Jasmin Sambac',
-    baseNotes: 'Vanille de Tahiti, Musc, Bois de Santal',
-    audioUrl: 'https://res.cloudinary.com/dcs9vkwe0/video/upload/v1764370176/audio3.mp3'
+    baseNotes: 'Vanille de Tahiti, Musc, Bois de Santal'
   },
   {
     id: 4,
@@ -47,8 +44,7 @@ const PRODUCTS = [
     fullDescription: 'Burberry incarne l\'intemporalité et la noblesse. Le sandalwood lisse, le vétiver élégant et le cèdre majestueux s\'orchestrent pour créer une fragrance raffinée qui résiste aux modes et au temps, symbole de vrai luxe.',
     topNotes: 'Citron, Cardamome',
     heartNotes: 'Vétiver, Iris',
-    baseNotes: 'Bois de Santal, Cèdre, Musc',
-    audioUrl: 'https://res.cloudinary.com/dcs9vkwe0/video/upload/v1764374734/audio4.mp3'
+    baseNotes: 'Bois de Santal, Cèdre, Musc'
   }
 ]
 
@@ -59,8 +55,20 @@ interface ProductDetailsProps {
 
 export default function ProductDetails({ productId, onClose }: ProductDetailsProps) {
   const [isClosing, setIsClosing] = useState(false)
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    character: false,
+    composition: false,
+    about: false
+  })
 
   const product = PRODUCTS.find(p => p.id === productId)
+
+  const toggleSection = (sectionId: string) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [sectionId]: !prev[sectionId]
+    }))
+  }
 
   if (!product) return null
 
@@ -98,61 +106,117 @@ export default function ProductDetails({ productId, onClose }: ProductDetailsPro
               alt={product.name}
               className="details-image"
             />
-            <div className="swipe-indicator">
-    <svg className="swipe-arrow" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M5 12h14m-7-7l7 7-7 7"/>
-    </svg>
-    <span className="swipe-text">Swipe</span>
-    </div>
           </div>
 
           <div className="details-content-section">
             <div className="details-header">
               <h1 className="details-title">{product.name}</h1>
               <div className="details-divider"></div>
-              {product.audioUrl && (
-                <div className="audio-player">
-                  <div className="audio-icon">🎵</div>
-                  <audio 
-                    controls 
-                    className="audio-control"
-                    controlsList="nodownload"
-                    aria-label={`Écouter la description de ${product.name}`}
-                  >
-                    <source src={product.audioUrl} type="audio/mpeg" />
-                    Votre navigateur ne supporte pas l'audio HTML5
-                  </audio>
-                </div>
-              )}
             </div>
 
             <div className="details-body">
-              <div className="details-group">
-                <h3 className="details-label">Caractère</h3>
-                <p className="details-text">{product.description}</p>
-              </div>
+              {/* Desktop: affichage normal */}
+              <div className="details-desktop-view">
+                <div className="details-group">
+                  <h3 className="details-label">Caractère</h3>
+                  <p className="details-text">{product.description}</p>
+                </div>
 
-              <div className="details-group">
-                <h3 className="details-label">Composition Olfactive</h3>
-                <div className="details-pyramid">
-                  <div className="pyramid-tier">
-                    <span className="pyramid-label">Notes de Tête</span>
-                    <p className="pyramid-value">{product.topNotes}</p>
+                <div className="details-group">
+                  <h3 className="details-label">Composition Olfactive</h3>
+                  <div className="details-pyramid">
+                    <div className="pyramid-tier">
+                      <span className="pyramid-label">Notes de Tête</span>
+                      <p className="pyramid-value">{product.topNotes}</p>
+                    </div>
+                    <div className="pyramid-tier">
+                      <span className="pyramid-label">Notes de Cœur</span>
+                      <p className="pyramid-value">{product.heartNotes}</p>
+                    </div>
+                    <div className="pyramid-tier">
+                      <span className="pyramid-label">Notes de Base</span>
+                      <p className="pyramid-value">{product.baseNotes}</p>
+                    </div>
                   </div>
-                  <div className="pyramid-tier">
-                    <span className="pyramid-label">Notes de Cœur</span>
-                    <p className="pyramid-value">{product.heartNotes}</p>
-                  </div>
-                  <div className="pyramid-tier">
-                    <span className="pyramid-label">Notes de Base</span>
-                    <p className="pyramid-value">{product.baseNotes}</p>
-                  </div>
+                </div>
+
+                <div className="details-group">
+                  <h3 className="details-label">À Propos</h3>
+                  <p className="details-description">{product.fullDescription}</p>
                 </div>
               </div>
 
-              <div className="details-group">
-                <h3 className="details-label">À Propos</h3>
-                <p className="details-description">{product.fullDescription}</p>
+              {/* Mobile: Accordion view */}
+              <div className="details-mobile-accordion">
+                {/* Section 1: Caractère */}
+                <div className="accordion-item">
+                  <button 
+                    className={`accordion-header ${expandedSections.character ? 'active' : ''}`}
+                    onClick={() => toggleSection('character')}
+                    aria-expanded={expandedSections.character}
+                  >
+                    <span className="accordion-title">Caractère</span>
+                    <svg className="accordion-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                  </button>
+                  {expandedSections.character && (
+                    <div className="accordion-content">
+                      <p className="accordion-text">{product.description}</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Section 2: Composition */}
+                <div className="accordion-item">
+                  <button 
+                    className={`accordion-header ${expandedSections.composition ? 'active' : ''}`}
+                    onClick={() => toggleSection('composition')}
+                    aria-expanded={expandedSections.composition}
+                  >
+                    <span className="accordion-title">Composition</span>
+                    <svg className="accordion-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                  </button>
+                  {expandedSections.composition && (
+                    <div className="accordion-content">
+                      <div className="accordion-pyramid">
+                        <div className="accordion-pyramid-tier">
+                          <span className="accordion-pyramid-label">Notes de Tête</span>
+                          <p className="accordion-pyramid-value">{product.topNotes}</p>
+                        </div>
+                        <div className="accordion-pyramid-tier">
+                          <span className="accordion-pyramid-label">Notes de Cœur</span>
+                          <p className="accordion-pyramid-value">{product.heartNotes}</p>
+                        </div>
+                        <div className="accordion-pyramid-tier">
+                          <span className="accordion-pyramid-label">Notes de Base</span>
+                          <p className="accordion-pyramid-value">{product.baseNotes}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Section 3: À propos */}
+                <div className="accordion-item">
+                  <button 
+                    className={`accordion-header ${expandedSections.about ? 'active' : ''}`}
+                    onClick={() => toggleSection('about')}
+                    aria-expanded={expandedSections.about}
+                  >
+                    <span className="accordion-title">À Propos</span>
+                    <svg className="accordion-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                  </button>
+                  {expandedSections.about && (
+                    <div className="accordion-content">
+                      <p className="accordion-text">{product.fullDescription}</p>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 

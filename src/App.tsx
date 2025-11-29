@@ -8,7 +8,7 @@ import Contact from './components/Contact'
 import Footer from './components/Footer'
 import WhatsAppButton from './components/WhatsAppButton'
 
-type Page = 'home' | 'products'
+type Page = 'home' | 'products' | 'contact'
 
 function App() {
   const [currentPage, setCurrentPage] = useState<Page>('home')
@@ -17,17 +17,19 @@ function App() {
     <div className="app">
       <Header onNavigate={setCurrentPage} />
       
-      {currentPage === 'home' ? (
+      {currentPage === 'home' && (
         <>
           <Hero />
           <Products />
-          <Contact />
         </>
-      ) : (
-        <>
-          <AllProducts />
-          <Contact />
-        </>
+      )}
+      
+      {currentPage === 'products' && (
+        <AllProducts />
+      )}
+      
+      {currentPage === 'contact' && (
+        <Contact />
       )}
       
       <Footer />
