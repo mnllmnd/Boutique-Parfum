@@ -95,9 +95,11 @@ export default function ProductDetails({ productId, onClose }: ProductDetailsPro
               className="details-image"
             />
             <div className="swipe-indicator">
-              <span className="swipe-arrow">→</span>
-              <span className="swipe-text">Swipe</span>
-            </div>
+  <svg className="swipe-arrow" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M5 12h14m-7-7l7 7-7 7"/>
+  </svg>
+  <span className="swipe-text">Swipe</span>
+</div>
           </div>
 
           <div className="details-content-section">

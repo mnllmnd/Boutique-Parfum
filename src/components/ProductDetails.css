@@ -579,3 +579,19 @@
     background: #cccccc;
   }
 }
+.swipe-arrow {
+  width: 24px;
+  height: 24px;
+  color: #ffffff;
+  opacity: 0.9;
+  animation: swipeArrow 1.5s ease-in-out infinite;
+  display: block;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+@media (max-width: 480px) {
+  .swipe-arrow {
+    width: 20px;
+    height: 20px;
+  }
+}
