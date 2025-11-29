@@ -19,7 +19,7 @@ function App() {
       
       {currentPage === 'home' && (
         <>
-          <Hero />
+          <Hero onNavigate={setCurrentPage} />
           <Products />
         </>
       )}

@@ -65,6 +65,7 @@ export default function ProductDetails({ productId, onClose }: ProductDetailsPro
     composition: false,
     about: false
   })
+  const [isPlayingAudio, setIsPlayingAudio] = useState(false)
 
   const product = PRODUCTS.find(p => p.id === productId)
 
@@ -125,14 +126,33 @@ export default function ProductDetails({ productId, onClose }: ProductDetailsPro
                 {/* AUDIO EN PREMIER */}
                 <div className="details-group audio-group">
                   <h3 className="details-label">Écouter la présentation</h3>
-                  <audio 
-                    controls 
-                    className="details-audio"
-                    controlsList="nodownload"
-                  >
-                    <source src={product.audioUrl} type="audio/mp4" />
-                    Votre navigateur ne supporte pas l'élément audio.
-                  </audio>
+                  <div className="audio-player">
+                    <button 
+                      className={`audio-play-btn ${isPlayingAudio ? 'playing' : ''}`}
+                      onClick={(e) => {
+                        const audio = (e.currentTarget.parentElement?.querySelector('audio') as HTMLAudioElement)
+                        if (audio.paused) {
+                          audio.play()
+                          setIsPlayingAudio(true)
+                        } else {
+                          audio.pause()
+                          setIsPlayingAudio(false)
+                        }
+                      }}
+                      aria-label="Lire l'audio"
+                    >
+                      {isPlayingAudio ? '⏸' : '▶'}
+                    </button>
+                    <div className={`audio-indicator ${isPlayingAudio ? 'playing' : ''}`}></div>
+                    <span className="audio-time">--:--</span>
+                    <audio 
+                      onPlay={() => setIsPlayingAudio(true)}
+                      onPause={() => setIsPlayingAudio(false)}
+                      style={{ display: 'none' }}
+                    >
+                      <source src={product.audioUrl} type="audio/mp4" />
+                    </audio>
+                  </div>
                 </div>
 
                 <div className="details-group">
@@ -169,14 +189,33 @@ export default function ProductDetails({ productId, onClose }: ProductDetailsPro
                 {/* AUDIO TOUJOURS VISIBLE EN MOBILE */}
                 <div className="accordion-audio-section">
                   <h3 className="details-label">Écouter la présentation</h3>
-                  <audio 
-                    controls 
-                    className="accordion-audio"
-                    controlsList="nodownload"
-                  >
-                    <source src={product.audioUrl} type="audio/mp4" />
-                    Votre navigateur ne supporte pas l'élément audio.
-                  </audio>
+                  <div className="audio-player">
+                    <button 
+                      className={`audio-play-btn ${isPlayingAudio ? 'playing' : ''}`}
+                      onClick={(e) => {
+                        const audio = (e.currentTarget.parentElement?.querySelector('audio') as HTMLAudioElement)
+                        if (audio.paused) {
+                          audio.play()
+                          setIsPlayingAudio(true)
+                        } else {
+                          audio.pause()
+                          setIsPlayingAudio(false)
+                        }
+                      }}
+                      aria-label="Lire l'audio"
+                    >
+                      {isPlayingAudio ? '⏸' : '▶'}
+                    </button>
+                    <div className={`audio-indicator ${isPlayingAudio ? 'playing' : ''}`}></div>
+                    <span className="audio-time">--:--</span>
+                    <audio 
+                      onPlay={() => setIsPlayingAudio(true)}
+                      onPause={() => setIsPlayingAudio(false)}
+                      style={{ display: 'none' }}
+                    >
+                      <source src={product.audioUrl} type="audio/mp4" />
+                    </audio>
+                  </div>
                 </div>
 
                 {/* Section 1: Caractère */}
