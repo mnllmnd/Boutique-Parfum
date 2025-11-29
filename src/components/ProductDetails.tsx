@@ -82,7 +82,7 @@ export default function ProductDetails({ productId, onClose }: ProductDetailsPro
     setIsClosing(true)
     setTimeout(() => {
       onClose()
-    }, 300)
+    }, 500)
   }
 
   const handleWhatsAppClick = (productName: string) => {

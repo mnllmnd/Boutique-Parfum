@@ -19,7 +19,7 @@
 }
 
 .product-details-overlay.closing {
-  animation: fadeOut 0.3s ease;
+  animation: fadeOut 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @keyframes fadeIn {
@@ -36,9 +36,11 @@
 @keyframes fadeOut {
   from {
     opacity: 1;
+    backdrop-filter: blur(15px);
   }
   to {
     opacity: 0;
+    backdrop-filter: blur(0px);
   }
 }
 
@@ -70,7 +72,7 @@
 }
 
 .product-details-overlay.closing .product-details-modal {
-  animation: slideDown 0.3s ease forwards;
+  animation: slideDown 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 @keyframes slideDown {
@@ -79,7 +81,7 @@
     opacity: 1;
   }
   to {
-    transform: translateY(60px) scale(0.96);
+    transform: translateY(80px) scale(0.95);
     opacity: 0;
   }
 }
