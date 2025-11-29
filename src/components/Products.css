@@ -124,22 +124,7 @@
 .product-card:nth-child(3) { animation-delay: 0.3s; }
 .product-card:nth-child(4) { animation-delay: 0.4s; }
 
-.product-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, transparent 100%);
-  opacity: 0;
-  transition: opacity 0.4s ease;
-  z-index: 2;
-}
 
-.product-card:active {
-  transform: translateY(-4px);
-}
 
 .product-image {
   position: relative;
@@ -164,10 +149,7 @@
   padding: 1.5rem;
 }
 
-.product-card:hover .product-img {
-  transform: scale(1.05);
-  filter: brightness(1.02) saturate(1.1);
-}
+
 
 .bottle-placeholder {
   width: 120px;
