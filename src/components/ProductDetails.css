@@ -1,4 +1,4 @@
-/* ProductDetails.css - Version corrigée */
+/* ProductDetails.css - Version complète corrigée */
 
 .product-details-overlay {
   position: fixed;
@@ -15,6 +15,7 @@
   animation: fadeIn 0.4s ease;
   backdrop-filter: blur(10px);
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .product-details-overlay.closing {
@@ -46,7 +47,7 @@
   max-width: 1000px;
   width: 100%;
   height: auto;
-  max-height: 90vh;
+  max-height: 85vh;
   border-radius: 2px;
   overflow: hidden;
   display: flex;
@@ -121,7 +122,8 @@
   display: flex;
   width: 100%;
   height: 100%;
-  overflow-y: auto;
+  max-height: 85vh;
+  overflow: hidden;
   overflow-x: hidden;
   box-sizing: border-box;
 }
@@ -173,6 +175,7 @@
   max-width: 100%;
   width: 100%;
   height: 100%;
+  max-height: 100%;
   animation: contentSlideIn 0.6s ease-out 0.1s both;
   gap: 1.5rem;
   box-sizing: border-box;
@@ -200,13 +203,10 @@
   font-size: 2.5rem;
   font-weight: 300;
   letter-spacing: 2px;
-  color: #1a1a1a;
+  color: #ffffff;
   text-transform: uppercase;
   margin: 0 0 1rem 0;
   line-height: 1.2;
-  background: linear-gradient(135deg, #1a1a1a 0%, #404040 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
   background-clip: text;
   word-break: break-word;
   overflow-wrap: break-word;
@@ -220,66 +220,17 @@
   margin: 1rem auto 1.5rem auto;
 }
 
-.audio-player {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1.2rem;
-  background: linear-gradient(135deg, #f8f8f8 0%, #f0f0f0 100%);
-  border-radius: 8px;
-  margin-top: 1.5rem;
-  animation: audioSlideIn 0.5s ease-out 0.3s both;
-  box-sizing: border-box;
-  max-width: 100%;
-}
-
-@keyframes audioSlideIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.audio-icon {
-  font-size: 1.5rem;
-  flex-shrink: 0;
-}
-
-.audio-control {
-  flex: 1;
-  height: 32px;
-  cursor: pointer;
-  accent-color: #1a1a1a;
-  max-width: 100%;
-}
-
-.audio-control::-webkit-media-controls-panel {
-  background-color: transparent;
-}
-
-.audio-control::-webkit-media-controls-play-button {
-  background-color: #1a1a1a;
-  border-radius: 50%;
-}
-
-.audio-control::-webkit-media-controls-volume-slider {
-  accent-color: #1a1a1a;
-}
-
 .details-body {
   flex: 1;
   margin-bottom: 0;
   overflow-y: auto;
-  padding-right: 0;
+  overflow-x: hidden;
+  padding-right: 0.5rem;
   word-wrap: break-word;
   overflow-wrap: break-word;
   width: 100%;
   box-sizing: border-box;
-  overflow-x: hidden;
+  max-height: calc(100% - 80px);
 }
 
 /* Desktop view - visible par défaut */
@@ -292,6 +243,28 @@
   min-width: 0;
   box-sizing: border-box;
   max-width: 100%;
+  height: auto;
+}
+
+/* L'audio en premier */
+.details-group.audio-group {
+  order: -1;
+  margin-bottom: 2rem;
+}
+
+.details-audio {
+  width: 100%;
+  height: 40px;
+  accent-color: #d4af37;
+  cursor: pointer;
+  border-radius: 6px;
+  border: 1px solid #e0e0e0;
+  padding: 0.5rem;
+  background: #f9f8f7;
+}
+
+.details-audio::-webkit-media-controls-panel {
+  background-color: #f9f8f7;
 }
 
 /* Mobile accordion - caché par défaut */
@@ -299,6 +272,25 @@
   display: none;
   width: 100%;
   box-sizing: border-box;
+}
+
+/* Audio toujours visible en mobile */
+.accordion-audio-section {
+  width: 100%;
+  padding: 1rem 0;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.accordion-audio {
+  width: 100%;
+  height: 40px;
+  accent-color: #d4af37;
+  cursor: pointer;
+  border-radius: 6px;
+  border: 1px solid #e0e0e0;
+  padding: 0.5rem;
+  background: #f9f8f7;
 }
 
 /* Styles de l'accordéon */
@@ -657,14 +649,6 @@
     background: #ffffff;
   }
 
-  .audio-player {
-    background: linear-gradient(135deg, #404040 0%, #353535 100%);
-  }
-
-  .audio-control {
-    accent-color: #ffffff;
-  }
-
   .details-text,
   .details-description {
     color: #cccccc;
@@ -672,11 +656,6 @@
 
   .details-image-section {
     background: #1a1a1a;
-  }
-
-  .swipe-arrow,
-  .swipe-text {
-    color: #1a1a1a;
   }
 
   .details-whatsapp-btn {
@@ -705,6 +684,16 @@
   .pyramid-value {
     color: #ffffff;
   }
+
+  .details-audio,
+  .accordion-audio {
+    background: #404040;
+    border-color: #555;
+  }
+  
+  .details-audio::-webkit-media-controls-panel {
+    background-color: #404040;
+  }
 }
 
 /* Tablette et mobile */
@@ -716,7 +705,7 @@
   .product-details-modal {
     flex-direction: column;
     height: auto;
-    max-height: none;
+    max-height: 95vh;
     overflow-y: auto;
     width: calc(100% - 2rem);
     margin: 0 auto;
@@ -725,7 +714,7 @@
   .details-container {
     flex-direction: column;
     overflow-y: auto;
-    max-height: 85vh;
+    max-height: none;
     width: 100%;
     overflow-x: hidden;
   }
@@ -747,12 +736,17 @@
     padding: 1.5rem;
     flex: 1;
     max-height: none;
-    overflow-y: auto;
+    overflow-y: visible;
     overflow-x: hidden;
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
     height: auto;
+  }
+
+  .details-body {
+    overflow-y: visible;
+    max-height: none;
   }
 
   .details-title {
@@ -771,16 +765,6 @@
     margin: 0.8rem auto;
   }
 
-  .audio-player {
-    padding: 0.8rem;
-    margin-top: 0.6rem;
-    gap: 0.8rem;
-  }
-
-  .audio-icon {
-    font-size: 1.2rem;
-  }
-
   /* Masquer la vue desktop */
   .details-desktop-view {
     display: none;
@@ -795,9 +779,9 @@
     overflow-x: hidden;
   }
 
-  .audio-control {
-    height: 24px;
-    font-size: 0.8rem;
+  /* Audio toujours visible en mobile */
+  .accordion-audio-section {
+    display: block !important;
   }
 
   .details-text,
@@ -899,21 +883,6 @@
     width: 40px;
   }
 
-  .audio-player {
-    padding: 0.7rem;
-    margin-top: 0.6rem;
-    gap: 0.6rem;
-  }
-
-  .audio-icon {
-    font-size: 1rem;
-  }
-
-  .audio-control {
-    height: 22px;
-    font-size: 0.75rem;
-  }
-
   .details-label {
     font-size: 0.65rem;
     letter-spacing: 1px;
@@ -979,6 +948,12 @@
   .accordion-pyramid-value {
     font-size: 0.8rem;
   }
+
+  .details-audio,
+  .accordion-audio {
+    height: 36px;
+    padding: 0.3rem;
+  }
 }
 
 /* Accessibilité */
@@ -993,40 +968,60 @@
 }
 
 /* Scrollbar personnalisée */
-.details-container::-webkit-scrollbar,
 .details-content-section::-webkit-scrollbar {
+  width: 8px;
+}
+
+.details-content-section::-webkit-scrollbar-track {
+  background: #f0f0f0;
+  border-radius: 4px;
+}
+
+.details-content-section::-webkit-scrollbar-thumb {
+  background: #d4af37;
+  border-radius: 4px;
+}
+
+.details-content-section::-webkit-scrollbar-thumb:hover {
+  background: #b8941f;
+}
+
+.details-body::-webkit-scrollbar {
   width: 6px;
 }
 
-.details-container::-webkit-scrollbar-track,
-.details-content-section::-webkit-scrollbar-track {
-  background: #f0f0f0;
+.details-body::-webkit-scrollbar-track {
+  background: #f8f8f8;
+  border-radius: 3px;
 }
 
-.details-container::-webkit-scrollbar-thumb,
-.details-content-section::-webkit-scrollbar-thumb {
+.details-body::-webkit-scrollbar-thumb {
   background: #1a1a1a;
   border-radius: 3px;
 }
 
-.details-container::-webkit-scrollbar-thumb:hover,
-.details-content-section::-webkit-scrollbar-thumb:hover {
+.details-body::-webkit-scrollbar-thumb:hover {
   background: #333;
 }
 
 @media (prefers-color-scheme: dark) {
-  .details-container::-webkit-scrollbar-track,
   .details-content-section::-webkit-scrollbar-track {
     background: #404040;
   }
 
-  .details-container::-webkit-scrollbar-thumb,
   .details-content-section::-webkit-scrollbar-thumb {
+    background: #d4af37;
+  }
+
+  .details-body::-webkit-scrollbar-track {
+    background: #404040;
+  }
+
+  .details-body::-webkit-scrollbar-thumb {
     background: #ffffff;
   }
 
-  .details-container::-webkit-scrollbar-thumb:hover,
-  .details-content-section::-webkit-scrollbar-thumb:hover {
+  .details-body::-webkit-scrollbar-thumb:hover {
     background: #cccccc;
   }
 }

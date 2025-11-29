@@ -18,6 +18,13 @@ export default function Header({ onNavigate }: HeaderProps) {
         </button>
         <nav className="nav">
           <button 
+            onClick={() => onNavigate('home')} 
+            className="nav-link"
+            aria-label="Aller à l'accueil"
+          >
+            <span className="nav-text">Accueil</span>
+          </button>
+          <button 
             onClick={() => onNavigate('products')} 
             className="nav-link"
             aria-label="Voir nos produits"

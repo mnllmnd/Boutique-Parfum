@@ -52,6 +52,15 @@ const ALL_PRODUCTS = [
 export default function AllProducts() {
   const [selectedProductId, setSelectedProductId] = useState<number | null>(null)
 
+  const handleProductClick = (productId: number, e: React.MouseEvent) => {
+    // Vérifier si le clic vient du bouton WhatsApp
+    const isWhatsAppButton = (e.target as Element).closest('.whatsapp-btn-compact')
+    
+    if (!isWhatsAppButton) {
+      setSelectedProductId(productId)
+    }
+  }
+
   const handleWhatsAppClick = (productName: string, e: React.MouseEvent) => {
     e.stopPropagation()
     const message = `Bonjour, je suis intéressé(e) par le parfum ${productName}. Pourriez-vous me donner plus d'informations ?`
@@ -71,18 +80,15 @@ export default function AllProducts() {
               <div
                 key={product.id}
                 className="product-card-compact"
+                onClick={(e) => handleProductClick(product.id, e)}
               >
-                <button
-                  className="product-image-btn"
-                  onClick={() => setSelectedProductId(product.id)}
-                  aria-label={`Voir les détails de ${product.name}`}
-                >
+                <div className="product-image-btn">
                   <img 
                     src={product.image} 
                     alt={product.name}
                     loading="lazy"
                   />
-                </button>
+                </div>
                 
                 <div className="product-info-compact">
                   <h3 className="product-title-compact">{product.name}</h3>
