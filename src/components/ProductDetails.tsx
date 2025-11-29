@@ -94,6 +94,10 @@ export default function ProductDetails({ productId, onClose }: ProductDetailsPro
               alt={product.name}
               className="details-image"
             />
+            <div className="swipe-indicator">
+              <span className="swipe-arrow">→</span>
+              <span className="swipe-text">Swipe</span>
+            </div>
           </div>
 
           <div className="details-content-section">
