@@ -579,6 +579,18 @@
     background: #cccccc;
   }
 }
+.swipe-indicator {
+  position: absolute;
+  bottom: 2rem;
+  right: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  animation: swipeHint 2s ease-in-out infinite;
+  z-index: 10;
+}
+
 .swipe-arrow {
   width: 24px;
   height: 24px;
@@ -589,9 +601,71 @@
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
 }
 
-@media (max-width: 480px) {
+.swipe-text {
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #ffffff;
+  opacity: 0.9;
+  font-weight: 600;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+}
+
+@keyframes swipeArrow {
+  0%, 100% {
+    transform: translateX(0);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateX(8px);
+    opacity: 1;
+  }
+}
+
+/* CORRECTION MOBILE - Position remontée */
+@media (max-width: 768px) {
+  .swipe-indicator {
+    bottom: 2rem; /* Remonté de 1.5rem à 2rem */
+    right: 1rem;
+    flex-direction: row;
+    gap: 0.4rem;
+    align-items: center;
+    background: rgba(26, 26, 26, 0.7);
+    backdrop-filter: blur(8px);
+    padding: 0.5rem 0.8rem;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
   .swipe-arrow {
     width: 20px;
     height: 20px;
   }
+
+  .swipe-text {
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .swipe-indicator {
+    bottom: 1.5rem; /* Encore plus remonté pour mobile très petit */
+    right: 1rem;
+    padding: 0.4rem 0.7rem;
+  }
+
+  .swipe-arrow {
+    width: 18px;
+    height: 18px;
+  }
+
+  .swipe-text {
+    font-size: 0.65rem;
+    letter-spacing: 0.5px;
+  }
+}
+
+/* Supprimer le dégradé d'arrière-plan si ça gêne */
+.details-image-section::after {
+  display: none; /* Ou ajuster la hauteur */
 }
