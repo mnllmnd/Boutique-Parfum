@@ -12,7 +12,7 @@ const PRODUCTS = [
     topNotes: 'Épices, Bergamote',
     heartNotes: 'Oud, Patchouli',
     baseNotes: 'Musc, Ambre, Vanille',
-    audioUrl: 'https://res.cloudinary.com/dcs9vkwe0/video/upload/v1764400439/su8anss8b3fdqba3zus9.mp4'
+    audioUrl: 'https://res.cloudinary.com/dcs9vkwe0/video/upload/v1764411795/flywthxunahtxut6gicx.mp4'
   },
   {
     id: 2,
