@@ -1,3 +1,6 @@
+import FormData from 'form-data'
+import { Readable } from 'stream'
+
 const CLOUDINARY_CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME
 const CLOUDINARY_UPLOAD_PRESET = process.env.CLOUDINARY_UPLOAD_PRESET
 const ADMIN_TOKEN = process.env.ADMIN_TOKEN
@@ -20,23 +23,24 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Missing file' })
     }
 
-    // Créer le payload pour Cloudinary (file en base64)
-    const uploadParams = new URLSearchParams({
-      file: file,
-      upload_preset: CLOUDINARY_UPLOAD_PRESET || 'Perfum_unsigned',
-      public_id: publicId,
-      folder: 'parfum'
-    })
+    // Convertir base64 en buffer
+    const buffer = Buffer.from(file, 'base64')
+    const stream = Readable.from(buffer)
+
+    // Créer FormData pour Cloudinary
+    const formData = new FormData()
+    formData.append('file', stream, { filename: 'upload.jpg' })
+    formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET || 'Perfum_unsigned')
+    formData.append('public_id', publicId)
+    formData.append('folder', 'parfum')
 
     // Upload vers Cloudinary
     const uploadResponse = await fetch(
       `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
       {
         method: 'POST',
-        body: uploadParams.toString(),
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        }
+        body: formData,
+        headers: formData.getHeaders()
       }
     )
 
