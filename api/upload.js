@@ -39,8 +39,7 @@ export default async function handler(req, res) {
       `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
       {
         method: 'POST',
-        body: formData,
-        headers: formData.getHeaders()
+        body: formData
       }
     )
 
