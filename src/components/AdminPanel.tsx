@@ -30,6 +30,12 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
   const [productDescription, setProductDescription] = useState('')
   const [uploadUrl, setUploadUrl] = useState('')
   
+  // Audio recording state
+  const [isRecording, setIsRecording] = useState(false)
+  const [recordingTime, setRecordingTime] = useState(0)
+  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null)
+  const [recordedAudioUrl, setRecordedAudioUrl] = useState('')
+  
   // Manage state
   const [products, setProducts] = useState<Product[]>([])
   const [loadingProducts, setLoadingProducts] = useState(false)
@@ -149,6 +155,51 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
       setUploadStatus('')
     } else {
       setUploadStatus('Veuillez sélectionner un fichier audio valide')
+    }
+  }
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      const recorder = new MediaRecorder(stream)
+      
+      recorder.ondataavailable = (e) => {
+        const audioBlob = new Blob([e.data], { type: 'audio/webm' })
+        const audioFile = new File([audioBlob], 'recording.webm', { type: 'audio/webm' })
+        setSelectedAudio(audioFile)
+        
+        // Créer une URL pour l'écoute
+        const url = URL.createObjectURL(audioBlob)
+        setRecordedAudioUrl(url)
+      }
+      
+      recorder.start()
+      setMediaRecorder(recorder)
+      setIsRecording(true)
+      setRecordingTime(0)
+      
+      // Compteur de temps
+      const interval = setInterval(() => {
+        setRecordingTime(prev => {
+          if (prev >= 300) { // Max 5 minutes
+            recorder.stop()
+            clearInterval(interval)
+            return 300
+          }
+          return prev + 1
+        })
+      }, 1000)
+    } catch {
+      setUploadStatus('❌ Erreur accès au microphone. Vérifiez les permissions.')
+    }
+  }
+
+  const stopRecording = () => {
+    if (mediaRecorder) {
+      mediaRecorder.stop()
+      mediaRecorder.stream.getTracks().forEach(track => track.stop())
+      setIsRecording(false)
+      setUploadStatus('✓ Enregistrement terminé')
     }
   }
 
@@ -441,7 +492,54 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="audio">Audio/Vocal (optionnel)</label>
+                  <label>Audio/Vocal (optionnel)</label>
+                  
+                  {/* Enregistreur audio */}
+                  <div className="audio-recorder">
+                    {!isRecording ? (
+                      <button
+                        type="button"
+                        className="record-btn"
+                        onClick={startRecording}
+                      >
+                        🎙️ Enregistrer
+                      </button>
+                    ) : (
+                      <div className="recording-active">
+                        <button
+                          type="button"
+                          className="record-btn stop"
+                          onClick={stopRecording}
+                        >
+                          ⏹️ Arrêter
+                        </button>
+                        <span className="recording-time">
+                          {Math.floor(recordingTime / 60)}:{String(recordingTime % 60).padStart(2, '0')}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Preview enregistrement */}
+                  {recordedAudioUrl && (
+                    <div className="audio-preview">
+                      <audio controls src={recordedAudioUrl} />
+                      <button
+                        type="button"
+                        className="delete-audio-btn"
+                        onClick={() => {
+                          setRecordedAudioUrl('')
+                          setSelectedAudio(null)
+                          setUploadStatus('')
+                        }}
+                      >
+                        ✕ Supprimer
+                      </button>
+                    </div>
+                  )}
+
+                  {/* OU importer un fichier */}
+                  <div className="audio-or">ou</div>
                   <input
                     id="audio"
                     type="file"
@@ -449,8 +547,8 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
                     onChange={handleAudioSelect}
                     className="admin-input"
                   />
-                  {selectedAudio && (
-                    <p className="file-info">🎙️ {selectedAudio.name}</p>
+                  {selectedAudio && !recordedAudioUrl && (
+                    <p className="file-info">📁 {selectedAudio.name}</p>
                   )}
                 </div>
 

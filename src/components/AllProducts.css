@@ -4,6 +4,7 @@
   min-height: 80vh;
   position: relative;
   overflow: hidden;
+  padding-bottom: 80px;
 }
 
 .all-products::before {
@@ -266,7 +267,7 @@
 /* Mobile Breakpoint */
 @media (max-width: 480px) {
   .all-products {
-    padding: 2rem 0.5rem;
+    padding: 2rem 0.5rem 90px;
   }
 
   .products-showcase {
@@ -304,6 +305,10 @@
   .products-page-subtitle {
     font-size: 0.8rem;
     margin-bottom: 1.5rem;
+  }
+
+  .container {
+    padding: 0 0.5rem;
   }
 }
 
