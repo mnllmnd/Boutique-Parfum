@@ -1,70 +1,52 @@
-import FormData from 'form-data'
-import { Readable } from 'stream'
-
-const CLOUDINARY_CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME
-const CLOUDINARY_UPLOAD_PRESET = process.env.CLOUDINARY_UPLOAD_PRESET
-const ADMIN_TOKEN = process.env.ADMIN_TOKEN
-
 export default async function handler(req, res) {
-  try {
-    if (req.method !== 'POST') {
-      return res.status(405).json({ error: 'Method not allowed' })
-    }
+  // Autoriser uniquement POST
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' })
+  }
 
-    const authHeader = req.headers.authorization
-    const token = authHeader?.substring(7)
-    
-    if (token !== ADMIN_TOKEN) {
-      return res.status(401).json({ error: 'Unauthorized' })
-    }
+  // Vérification du token admin
+  const auth = req.headers.authorization?.replace("Bearer ", "")
+  if (auth !== process.env.ADMIN_TOKEN) {
+    return res.status(401).json({ error: "Unauthorized" })
+  }
 
-    const { file, publicId } = req.body
-    if (!file) {
-      return res.status(400).json({ error: 'Missing file' })
-    }
+  // Récupération des données envoyées
+  const { file, publicId } = req.body
 
-    // Convertir base64 en buffer
-    const buffer = Buffer.from(file, 'base64')
-    const stream = Readable.from(buffer)
+  if (!file) {
+    return res.status(400).json({ error: "Missing file" })
+  }
 
-    // Créer FormData pour Cloudinary
-    const formData = new FormData()
-    formData.append('file', stream, { filename: 'upload.jpg' })
-    formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET || 'Perfum_unsigned')
-    formData.append('public_id', publicId)
-    formData.append('folder', 'parfum')
+  // Variables Cloudinary (depuis Vercel)
+  const uploadPreset = process.env.CLOUDINARY_UPLOAD_PRESET
+  const cloudName = process.env.CLOUDINARY_CLOUD_NAME
 
-    // Upload vers Cloudinary
-    const uploadResponse = await fetch(
-      `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
-      {
-        method: 'POST',
-        body: formData
-      }
-    )
+  // URL API Cloudinary
+  const uploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/upload`
 
-    if (!uploadResponse.ok) {
-      const errorData = await uploadResponse.text()
-      console.error('Cloudinary error:', errorData)
-      try {
-        const errorJson = JSON.parse(errorData)
-        return res.status(400).json({ error: 'Upload failed', details: errorJson.error?.message })
-      } catch {
-        return res.status(400).json({ error: 'Upload failed', details: errorData })
-      }
-    }
-
-    const data = await uploadResponse.json()
-
-    return res.status(200).json({
-      url: data.secure_url,
-      publicId: data.public_id
+  // Envoi à Cloudinary
+  const response = await fetch(uploadUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      file: `data:image/jpeg;base64,${file}`,
+      upload_preset: uploadPreset,
+      public_id: publicId,
+      folder: "parfum"
     })
-  } catch (error) {
-    console.error('Upload error:', error)
-    res.status(500).json({
-      error: 'Internal server error',
-      message: error instanceof Error ? error.message : 'Unknown error'
+  })
+
+  const data = await response.json()
+
+  if (!response.ok) {
+    return res.status(400).json({
+      error: data.error?.message || "Upload failed"
     })
   }
+
+  // Upload OK
+  return res.status(200).json({
+    url: data.secure_url,
+    publicId: data.public_id
+  })
 }
