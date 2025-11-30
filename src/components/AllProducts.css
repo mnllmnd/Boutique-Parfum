@@ -267,7 +267,7 @@
 /* Mobile Breakpoint */
 @media (max-width: 480px) {
   .all-products {
-    padding: 2rem 0.5rem 90px;
+    padding: 2rem 0.5rem 2rem;
   }
 
   .products-showcase {

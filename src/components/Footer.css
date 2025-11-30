@@ -48,13 +48,12 @@
 .footer-bottom {
   border-top: 1px solid var(--border-color);
   padding-top: 2rem;
-  text-align: center;
-  color: var(--text-muted);
-  font-size: 0.85rem;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   gap: 1.5rem;
+  color: var(--text-muted);
+  font-size: 0.85rem;
 }
 
 .admin-icon {
@@ -132,5 +131,11 @@
   .footer-bottom {
     font-size: 0.65rem;
     padding-top: 0.8rem;
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  .admin-icon {
+    font-size: 1.2rem;
   }
 }

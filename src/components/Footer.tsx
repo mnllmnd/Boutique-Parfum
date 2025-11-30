@@ -39,7 +39,7 @@ export default function Footer({ onAdminClick }: FooterProps) {
           </div>
         </div>
         <div className="footer-bottom">
-          <p>&copy; {currentYear} LUXE Parfums. Tous droits réservés.</p>
+          <p style={{ flex: 1, textAlign: 'center' }}>&copy; {currentYear} LUXE Parfums. Tous droits réservés.</p>
           <button className="admin-icon" onClick={onAdminClick} title="Admin Panel" aria-label="Admin Panel">
             ⚙️
           </button>

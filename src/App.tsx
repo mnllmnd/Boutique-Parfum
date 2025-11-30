@@ -38,34 +38,6 @@ function App() {
       
       <Footer onAdminClick={() => setShowAdminPanel(true)} />
       
-      {/* Navigation mobile fixe en bas */}
-      <nav className="mobile-nav">
-        <button 
-          className={`mobile-nav-item ${currentPage === 'home' ? 'active' : ''}`}
-          onClick={() => setCurrentPage('home')}
-          aria-label="Accueil"
-        >
-          <span className="mobile-nav-icon">🏠</span>
-          <span className="mobile-nav-label">Accueil</span>
-        </button>
-        <button 
-          className={`mobile-nav-item ${currentPage === 'products' ? 'active' : ''}`}
-          onClick={() => setCurrentPage('products')}
-          aria-label="Collection"
-        >
-          <span className="mobile-nav-icon">✨</span>
-          <span className="mobile-nav-label">Collection</span>
-        </button>
-        <button 
-          className={`mobile-nav-item ${currentPage === 'contact' ? 'active' : ''}`}
-          onClick={() => setCurrentPage('contact')}
-          aria-label="Contact"
-        >
-          <span className="mobile-nav-icon">💬</span>
-          <span className="mobile-nav-label">Contact</span>
-        </button>
-      </nav>
-
       {showAdminPanel && <AdminPanel onClose={() => setShowAdminPanel(false)} />}
       <WhatsAppButton />
     </div>
