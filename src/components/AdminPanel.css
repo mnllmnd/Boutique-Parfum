@@ -706,13 +706,94 @@
 
 /* Mobile */
 @media (max-width: 480px) {
+  .admin-panel {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .admin-container {
+    max-height: 100vh;
+    width: 100%;
+    border-radius: 20px 20px 0 0;
+  }
+
+  .admin-header {
+    padding: 1.5rem 1.5rem 1rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
   .admin-tabs {
+    width: 100%;
+    order: 2;
     gap: 0.25rem;
+  }
+
+  .admin-close {
+    order: 1;
+    position: static;
+    width: auto;
+  }
+
+  .admin-content {
+    padding: 1.5rem 1.5rem;
+    max-height: calc(100vh - 200px);
+  }
+
+  .admin-title {
+    font-size: 1.4rem;
+    flex: 1;
+    order: 1;
+  }
+
+  .admin-form {
+    gap: 1rem;
+  }
+
+  .form-group {
+    gap: 0.4rem;
+  }
+
+  .form-group label {
+    font-size: 0.85rem;
+  }
+
+  .admin-input {
+    padding: 0.7rem 0.9rem;
+    font-size: 16px;
+  }
+
+  .admin-btn {
+    padding: 0.85rem 1.2rem;
+    font-size: 0.9rem;
+    width: 100%;
   }
 
   .admin-tab {
     padding: 0.6rem 1rem;
     font-size: 0.8rem;
+    flex: 1;
+    text-align: center;
+  }
+
+  .admin-info {
+    padding: 1rem;
+    margin-top: 1rem;
+  }
+
+  .admin-info h3 {
+    font-size: 0.85rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .admin-info li {
+    font-size: 0.8rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .admin-logout {
+    padding: 1rem 1.5rem 0.8rem;
+    font-size: 0.85rem;
   }
 
   .product-item {
@@ -723,6 +804,7 @@
   .product-thumb {
     width: 60px;
     height: 60px;
+    min-width: 60px;
   }
 
   .product-info h4 {
@@ -746,5 +828,63 @@
   .edit-actions {
     flex-direction: column;
     gap: 0.75rem;
+  }
+
+  .manage-title {
+    font-size: 1.1rem;
+    margin: 0 0 1rem 0;
+    padding-bottom: 0.8rem;
+  }
+
+  .admin-login {
+    gap: 0.8rem;
+  }
+
+  .url-box {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .url-input {
+    width: 100%;
+  }
+
+  .copy-btn {
+    width: 100%;
+  }
+
+  .admin-textarea {
+    min-height: 70px;
+  }
+
+  .file-info {
+    font-size: 0.8rem;
+    margin-top: 0.4rem;
+  }
+
+  .admin-status {
+    padding: 0.8rem 0.9rem;
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+  }
+
+  .upload-result {
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .result-label {
+    font-size: 0.8rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .loading {
+    padding: 1.5rem 0;
+    font-size: 0.9rem;
+  }
+
+  .no-products {
+    padding: 1.5rem 0;
+    font-size: 0.9rem;
   }
 }

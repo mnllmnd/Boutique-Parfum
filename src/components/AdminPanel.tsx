@@ -24,6 +24,7 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
   const [uploading, setUploading] = useState(false)
   const [uploadStatus, setUploadStatus] = useState('')
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [selectedAudio, setSelectedAudio] = useState<File | null>(null)
   const [productId, setProductId] = useState('')
   const [productName, setProductName] = useState('')
   const [productDescription, setProductDescription] = useState('')
@@ -141,6 +142,16 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
     }
   }
 
+  const handleAudioSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file && file.type.startsWith('audio/')) {
+      setSelectedAudio(file)
+      setUploadStatus('')
+    } else {
+      setUploadStatus('Veuillez sélectionner un fichier audio valide')
+    }
+  }
+
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault()
     
@@ -180,47 +191,148 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
         }
 
         const data = await response.json() as { url: string; publicId: string }
-
         setUploadUrl(data.url)
-        setUploadStatus(`✓ Upload réussi! Création du produit...`)
-        
-        // Créer automatiquement le produit si des informations sont remplies
-        if (productName.trim()) {
-          try {
-            const createResponse = await fetch('/api/products', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${adminToken}`
-              },
-              body: JSON.stringify({
-                id: productId || `product_${Date.now()}`,
-                name: productName,
-                description: productDescription,
-                image: data.url,
-                fullDescription: productDescription,
-                topNotes: 'Bergamote',
-                heartNotes: 'Fleur',
-                baseNotes: 'Bois'
-              })
-            })
 
-            if (createResponse.ok) {
-              setUploadStatus(`✓ Upload et produit créé avec succès!`)
-              setProductName('')
-              setProductDescription('')
-            } else {
-              setUploadStatus(`✓ Upload réussi! (Produit non créé)`)
+        // Upload audio si sélectionné
+        let audioUrlResult = ''
+        if (selectedAudio) {
+          try {
+            const audioReader = new FileReader()
+            audioReader.readAsDataURL(selectedAudio)
+            
+            audioReader.onload = async () => {
+              const audioBase64String = audioReader.result as string
+              const audioBase64 = audioBase64String.split(',')[1]
+              
+              const audioResponse = await fetch('/api/upload', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${adminToken}`
+                },
+                body: JSON.stringify({
+                  file: audioBase64,
+                  publicId: `audio_${productId || Date.now()}`
+                })
+              })
+
+              if (audioResponse.ok) {
+                const audioData = await audioResponse.json()
+                audioUrlResult = audioData.url
+              }
+
+              // Créer le produit avec image et audio
+              if (productName.trim()) {
+                try {
+                  const createResponse = await fetch('/api/products', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'Authorization': `Bearer ${adminToken}`
+                    },
+                    body: JSON.stringify({
+                      id: productId || `product_${Date.now()}`,
+                      name: productName,
+                      description: productDescription,
+                      image: data.url,
+                      audioUrl: audioUrlResult || undefined,
+                      fullDescription: productDescription,
+                      topNotes: 'Bergamote',
+                      heartNotes: 'Fleur',
+                      baseNotes: 'Bois'
+                    })
+                  })
+
+                  if (createResponse.ok) {
+                    setUploadStatus(`✓ Produit créé avec succès!`)
+                    setProductName('')
+                    setProductDescription('')
+                    setSelectedAudio(null)
+                    loadProducts()
+                  }
+                } catch {
+                  setUploadStatus(`✓ Upload réussi!`)
+                }
+              }
+
+              setSelectedFile(null)
+              navigator.clipboard.writeText(data.url)
+              setUploading(false)
             }
           } catch {
-            setUploadStatus(`✓ Upload réussi! (Erreur création produit)`)
+            // Si l'audio échoue, continuer avec juste l'image
+            if (productName.trim()) {
+              try {
+                const createResponse = await fetch('/api/products', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${adminToken}`
+                  },
+                  body: JSON.stringify({
+                    id: productId || `product_${Date.now()}`,
+                    name: productName,
+                    description: productDescription,
+                    image: data.url,
+                    fullDescription: productDescription,
+                    topNotes: 'Bergamote',
+                    heartNotes: 'Fleur',
+                    baseNotes: 'Bois'
+                  })
+                })
+
+                if (createResponse.ok) {
+                  setUploadStatus(`✓ Produit créé (audio non uploadé)`)
+                  setProductName('')
+                  setProductDescription('')
+                  loadProducts()
+                }
+              } catch {
+                setUploadStatus(`✓ Upload réussi!`)
+              }
+            }
+            setSelectedFile(null)
+            setUploading(false)
           }
+        } else {
+          // Pas d'audio, juste créer le produit avec l'image
+          if (productName.trim()) {
+            try {
+              const createResponse = await fetch('/api/products', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${adminToken}`
+                },
+                body: JSON.stringify({
+                  id: productId || `product_${Date.now()}`,
+                  name: productName,
+                  description: productDescription,
+                  image: data.url,
+                  fullDescription: productDescription,
+                  topNotes: 'Bergamote',
+                  heartNotes: 'Fleur',
+                  baseNotes: 'Bois'
+                })
+              })
+
+              if (createResponse.ok) {
+                setUploadStatus(`✓ Produit créé avec succès!`)
+                setProductName('')
+                setProductDescription('')
+                loadProducts()
+              } else {
+                setUploadStatus(`✓ Upload réussi! (Produit non créé)`)
+              }
+            } catch {
+              setUploadStatus(`✓ Upload réussi! (Erreur création produit)`)
+            }
+          }
+          
+          setSelectedFile(null)
+          navigator.clipboard.writeText(data.url)
+          setUploading(false)
         }
-        
-        setSelectedFile(null)
-        // Copier l'URL dans le presse-papiers
-        navigator.clipboard.writeText(data.url)
-        setUploading(false)
       }
     } catch (error) {
       setUploadStatus(`✗ Erreur: ${error instanceof Error ? error.message : 'Unknown error'}`)
@@ -326,6 +438,20 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
                     className="admin-input admin-textarea"
                     rows={3}
                   />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="audio">Audio/Vocal (optionnel)</label>
+                  <input
+                    id="audio"
+                    type="file"
+                    accept="audio/*"
+                    onChange={handleAudioSelect}
+                    className="admin-input"
+                  />
+                  {selectedAudio && (
+                    <p className="file-info">🎙️ {selectedAudio.name}</p>
+                  )}
                 </div>
 
                 <button 
