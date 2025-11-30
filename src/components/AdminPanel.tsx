@@ -213,15 +213,24 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
         }
       }
       const stream = await navigator.mediaDevices.getUserMedia(constraints)
-      const recorder = new MediaRecorder(stream)
+      const recorder = new MediaRecorder(stream, { mimeType: 'audio/webm' })
+      let recordingInterval: number | null = null
       
       recorder.ondataavailable = (e) => {
-        const audioBlob = new Blob([e.data], { type: 'audio/webm' })
-        const audioFile = new File([audioBlob], 'recording.webm', { type: 'audio/webm' })
-        setSelectedAudio(audioFile)
-        
-        const url = URL.createObjectURL(audioBlob)
-        setRecordedAudioUrl(url)
+        if (e.data.size > 0) {
+          const audioBlob = new Blob([e.data], { type: 'audio/webm' })
+          const audioFile = new File([audioBlob], 'recording.webm', { type: 'audio/webm' })
+          setSelectedAudio(audioFile)
+          
+          const url = URL.createObjectURL(audioBlob)
+          setRecordedAudioUrl(url)
+          setUploadStatus('✓ Enregistrement terminé')
+        }
+      }
+
+      recorder.onerror = (event) => {
+        setUploadStatus(`❌ Erreur enregistrement: ${event.error}`)
+        if (recordingInterval) clearInterval(recordingInterval)
       }
       
       recorder.start()
@@ -229,14 +238,15 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
       setIsRecording(true)
       setRecordingTime(0)
       
-      const interval = setInterval(() => {
+      recordingInterval = setInterval(() => {
         setRecordingTime(prev => {
-          if (prev >= 300) {
+          const newTime = prev + 1
+          if (newTime >= 300) {
             recorder.stop()
-            clearInterval(interval)
+            if (recordingInterval) clearInterval(recordingInterval)
             return 300
           }
-          return prev + 1
+          return newTime
         })
       }, 1000)
     } catch (error) {
@@ -252,11 +262,12 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
   }
 
   const stopRecording = () => {
-    if (mediaRecorder) {
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
       mediaRecorder.stop()
-      mediaRecorder.stream.getTracks().forEach(track => track.stop())
+      for (const track of mediaRecorder.stream.getTracks()) {
+        track.stop()
+      }
       setIsRecording(false)
-      setUploadStatus('✓ Enregistrement terminé')
     }
   }
 
