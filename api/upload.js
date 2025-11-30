@@ -4,9 +4,11 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
-  // Vérification du token admin
+  // Vérification du mot de passe admin
   const auth = req.headers.authorization?.replace("Bearer ", "")
-  if (auth !== process.env.ADMIN_TOKEN) {
+  const adminPassword = process.env.ADMIN_PASSWORD || process.env.ADMIN_TOKEN
+  
+  if (auth !== adminPassword) {
     return res.status(401).json({ error: "Unauthorized" })
   }
 

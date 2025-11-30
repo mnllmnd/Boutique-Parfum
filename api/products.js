@@ -1,7 +1,7 @@
 import { MongoClient } from 'mongodb'
 
 const MONGODB_URI = process.env.MONGODB_URI
-const ADMIN_TOKEN = process.env.ADMIN_TOKEN
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || process.env.ADMIN_TOKEN
 
 let cachedClient = null
 
@@ -41,7 +41,7 @@ export default async function handler(req, res) {
       const authHeader = req.headers.authorization
       const token = authHeader?.substring(7)
       
-      if (token !== ADMIN_TOKEN) {
+      if (token !== ADMIN_PASSWORD) {
         return res.status(401).json({ error: 'Unauthorized' })
       }
 
@@ -79,7 +79,7 @@ export default async function handler(req, res) {
       const authHeader = req.headers.authorization
       const token = authHeader?.substring(7)
       
-      if (token !== ADMIN_TOKEN) {
+      if (token !== ADMIN_PASSWORD) {
         return res.status(401).json({ error: 'Unauthorized' })
       }
 
@@ -109,7 +109,7 @@ export default async function handler(req, res) {
       const authHeader = req.headers.authorization
       const token = authHeader?.substring(7)
       
-      if (token !== ADMIN_TOKEN) {
+      if (token !== ADMIN_PASSWORD) {
         return res.status(401).json({ error: 'Unauthorized' })
       }
 
