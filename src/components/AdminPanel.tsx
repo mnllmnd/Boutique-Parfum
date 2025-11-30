@@ -19,15 +19,19 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [adminToken, setAdminToken] = useState('')
   const [activeTab, setActiveTab] = useState<AdminTab>('upload')
+  const [failedAttempts, setFailedAttempts] = useState(0)
   
   // Upload state
   const [uploading, setUploading] = useState(false)
   const [uploadStatus, setUploadStatus] = useState('')
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [selectedAudio, setSelectedAudio] = useState<File | null>(null)
-  const [productId, setProductId] = useState('')
   const [productName, setProductName] = useState('')
   const [productDescription, setProductDescription] = useState('')
+  const [productNotes, setProductNotes] = useState('')
+  const [topNotes, setTopNotes] = useState('')
+  const [heartNotes, setHeartNotes] = useState('')
+  const [baseNotes, setBaseNotes] = useState('')
   const [uploadUrl, setUploadUrl] = useState('')
   
   // Audio recording state
@@ -54,7 +58,10 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
   const clearForm = () => {
     setProductName('')
     setProductDescription('')
-    setProductId('')
+    setProductNotes('')
+    setTopNotes('')
+    setHeartNotes('')
+    setBaseNotes('')
     setSelectedFile(null)
     setSelectedAudio(null)
     setRecordedAudioUrl('')
@@ -142,13 +149,38 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
-    if (adminToken.length > 0) {
-      setIsAuthenticated(true)
-      setUploadStatus('Authentifié avec succès ✓')
-      setTimeout(() => setUploadStatus(''), 3000)
-    } else {
-      setUploadStatus('Veuillez entrer un mot de passe')
+    
+    const authenticateAdmin = async () => {
+      try {
+        const response = await fetch('/api/auth', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ password: adminToken })
+        })
+
+        if (response.ok) {
+          setIsAuthenticated(true)
+          setUploadStatus('Authentifié avec succès ✓')
+          setFailedAttempts(0)
+          setTimeout(() => setUploadStatus(''), 3000)
+        } else {
+          const newAttempts = failedAttempts + 1
+          setFailedAttempts(newAttempts)
+          setUploadStatus('❌ Mot de passe incorrect')
+          setAdminToken('')
+          if (newAttempts >= 3) {
+            setTimeout(() => onClose?.(), 2000)
+          }
+        }
+      } catch (error) {
+        setUploadStatus(`✗ Erreur serveur: ${error instanceof Error ? error.message : 'Unknown'}`)
+        setAdminToken('')
+      }
     }
+
+    authenticateAdmin()
   }
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -173,7 +205,14 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
 
   const startRecording = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      const constraints = {
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true
+        }
+      }
+      const stream = await navigator.mediaDevices.getUserMedia(constraints)
       const recorder = new MediaRecorder(stream)
       
       recorder.ondataavailable = (e) => {
@@ -200,8 +239,15 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
           return prev + 1
         })
       }, 1000)
-    } catch {
-      setUploadStatus('❌ Erreur accès au microphone. Vérifiez les permissions.')
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue'
+      if (errorMessage.includes('NotAllowedError') || errorMessage.includes('Permission denied')) {
+        setUploadStatus('❌ Veuillez autoriser l\'accès au microphone dans vos paramètres')
+      } else if (errorMessage.includes('NotFoundError') || errorMessage.includes('no audio device')) {
+        setUploadStatus('❌ Aucun microphone détecté sur cet appareil')
+      } else {
+        setUploadStatus(`❌ Erreur microphone: ${errorMessage}`)
+      }
     }
   }
 
@@ -245,7 +291,7 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
         },
         body: JSON.stringify({
           file: imageBase64,
-          publicId: productId || `product_${Date.now()}`
+          publicId: `product_${Date.now()}`
         })
       })
 
@@ -277,7 +323,7 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
             },
             body: JSON.stringify({
               file: audioBase64,
-              publicId: `audio_${productId || Date.now()}`
+              publicId: `audio_${Date.now()}`
             })
           })
 
@@ -293,15 +339,16 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
       // Create product
       if (productName.trim()) {
         const productData = {
-          id: productId || `product_${Date.now()}`,
+          id: `product_${Date.now()}`,
           name: productName,
           description: productDescription,
           image: imageData.url,
           ...(audioUrl && { audioUrl }),
+          ...(productNotes && { notes: productNotes }),
           fullDescription: productDescription,
-          topNotes: 'Bergamote',
-          heartNotes: 'Fleur',
-          baseNotes: 'Bois'
+          ...(topNotes && { topNotes }),
+          ...(heartNotes && { heartNotes }),
+          ...(baseNotes && { baseNotes })
         }
 
         const createResponse = await fetch('/api/products', {
@@ -401,13 +448,13 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="productId">ID Produit</label>
+                  <label htmlFor="productNotes">Notes détails</label>
                   <input
-                    id="productId"
+                    id="productNotes"
                     type="text"
-                    placeholder="Auto-généré si vide"
-                    value={productId}
-                    onChange={(e) => setProductId(e.target.value)}
+                    placeholder="Ex: Senteur florale, épicée..."
+                    value={productNotes}
+                    onChange={(e) => setProductNotes(e.target.value)}
                     className="admin-input"
                   />
                 </div>
@@ -434,6 +481,33 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
                     className="admin-input admin-textarea"
                     rows={3}
                   />
+                </div>
+
+                <div className="form-group">
+                  <label>Composition (optionnel)</label>
+                  <div className="composition-fields">
+                    <input
+                      type="text"
+                      placeholder="Notes de Tête (ex: Bergamote, Citron)"
+                      value={topNotes}
+                      onChange={(e) => setTopNotes(e.target.value)}
+                      className="admin-input"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Notes de Cœur (ex: Rose, Jasmin)"
+                      value={heartNotes}
+                      onChange={(e) => setHeartNotes(e.target.value)}
+                      className="admin-input"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Notes de Base (ex: Vanille, Musc)"
+                      value={baseNotes}
+                      onChange={(e) => setBaseNotes(e.target.value)}
+                      className="admin-input"
+                    />
+                  </div>
                 </div>
 
                 <div className="form-group">
