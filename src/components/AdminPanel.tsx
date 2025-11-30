@@ -203,45 +203,95 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
     }
   }
 
+  // Fonction pour détecter le format audio supporté
+  const getSupportedMimeType = (): string | null => {
+    const types = [
+      'audio/mp4',
+      'audio/mpeg',
+      'audio/webm',
+      'audio/ogg',
+      'audio/wav'
+    ]
+    
+    for (const type of types) {
+      if (MediaRecorder.isTypeSupported(type)) {
+        return type
+      }
+    }
+    return null
+  }
+
   const startRecording = async () => {
     try {
       const constraints = {
         audio: {
           echoCancellation: true,
           noiseSuppression: true,
-          autoGainControl: true
+          autoGainControl: true,
+          channelCount: 1,
+          sampleRate: 44100
         }
       }
+      
       const stream = await navigator.mediaDevices.getUserMedia(constraints)
-      const recorder = new MediaRecorder(stream, { mimeType: 'audio/webm' })
+      const mimeType = getSupportedMimeType()
+      
+      if (!mimeType) {
+        setUploadStatus('❌ Format audio non supporté sur cet appareil')
+        return
+      }
+
+      const options = { mimeType }
+      const recorder = new MediaRecorder(stream, options)
       let recordingInterval: number | null = null
+      const audioChunks: Blob[] = []
       
       recorder.ondataavailable = (e) => {
         if (e.data.size > 0) {
-          const audioBlob = new Blob([e.data], { type: 'audio/webm' })
-          const audioFile = new File([audioBlob], 'recording.webm', { type: 'audio/webm' })
-          setSelectedAudio(audioFile)
-          
-          const url = URL.createObjectURL(audioBlob)
-          setRecordedAudioUrl(url)
-          setUploadStatus('✓ Enregistrement terminé')
+          audioChunks.push(e.data)
+        }
+      }
+
+      recorder.onstop = () => {
+        const audioBlob = new Blob(audioChunks, { type: mimeType })
+        
+        // Déterminer l'extension en fonction du MIME type
+        let extension = 'webm'
+        if (mimeType.includes('mp4')) extension = 'm4a'
+        if (mimeType.includes('mpeg')) extension = 'mp3'
+        if (mimeType.includes('ogg')) extension = 'ogg'
+        if (mimeType.includes('wav')) extension = 'wav'
+        
+        const audioFile = new File([audioBlob], `recording.${extension}`, { type: mimeType })
+        setSelectedAudio(audioFile)
+        
+        const url = URL.createObjectURL(audioBlob)
+        setRecordedAudioUrl(url)
+        setUploadStatus('✓ Enregistrement terminé')
+        
+        // Nettoyer les tracks
+        for (const track of stream.getTracks()) {
+          track.stop()
         }
       }
 
       recorder.onerror = (event) => {
         setUploadStatus(`❌ Erreur enregistrement: ${event.error}`)
         if (recordingInterval) clearInterval(recordingInterval)
+        for (const track of stream.getTracks()) {
+          track.stop()
+        }
       }
       
-      recorder.start()
+      recorder.start(1000) // Collect data every second
       setMediaRecorder(recorder)
       setIsRecording(true)
       setRecordingTime(0)
       
-      recordingInterval = setInterval(() => {
+      recordingInterval = window.setInterval(() => {
         setRecordingTime(prev => {
           const newTime = prev + 1
-          if (newTime >= 300) {
+          if (newTime >= 300) { // 5 minutes max
             recorder.stop()
             if (recordingInterval) clearInterval(recordingInterval)
             return 300
@@ -264,9 +314,6 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
   const stopRecording = () => {
     if (mediaRecorder && mediaRecorder.state !== 'inactive') {
       mediaRecorder.stop()
-      for (const track of mediaRecorder.stream.getTracks()) {
-        track.stop()
-      }
       setIsRecording(false)
     }
   }
