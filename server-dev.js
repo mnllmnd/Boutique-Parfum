@@ -4,9 +4,15 @@ import FormData from 'form-data'
 import { Readable } from 'stream'
 import crypto from 'crypto'
 import dotenv from 'dotenv'
+import fs from 'fs'
+import path from 'path'
+import { fileURLToPath } from 'url'
 
 // Load environment variables
 dotenv.config({ path: '.env.local' })
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const PRODUCTS_FILE = path.join(__dirname, 'products.json')
 
 const app = express()
 
@@ -14,8 +20,33 @@ const app = express()
 app.use(express.json({ limit: '50mb' }))
 app.use(express.urlencoded({ limit: '50mb' }))
 
-// In-memory products database
-const PRODUCTS_DB = {}
+// In-memory products database with file persistence
+let PRODUCTS_DB = {}
+
+// Load products from file on startup
+const loadProducts = () => {
+  try {
+    if (fs.existsSync(PRODUCTS_FILE)) {
+      const data = fs.readFileSync(PRODUCTS_FILE, 'utf8')
+      PRODUCTS_DB = JSON.parse(data)
+      console.log(`✓ Loaded ${Object.keys(PRODUCTS_DB).length} products from file`)
+    }
+  } catch (error) {
+    console.error('Error loading products from file:', error)
+  }
+}
+
+// Save products to file
+const saveProducts = () => {
+  try {
+    fs.writeFileSync(PRODUCTS_FILE, JSON.stringify(PRODUCTS_DB, null, 2))
+  } catch (error) {
+    console.error('Error saving products to file:', error)
+  }
+}
+
+// Load on startup
+loadProducts()
 
 // Upload handler
 app.post('/api/upload', async (req, res) => {
@@ -119,6 +150,8 @@ app.all('/api/products', async (req, res) => {
 
       PRODUCTS_DB[id] = product
 
+      saveProducts()
+
       return res.status(201).json({
         success: true,
         product,
@@ -144,6 +177,8 @@ app.all('/api/products', async (req, res) => {
         updatedAt: new Date().toISOString() 
       }
 
+      saveProducts()
+
       return res.status(200).json({
         success: true,
         product: PRODUCTS_DB[id],
@@ -164,6 +199,8 @@ app.all('/api/products', async (req, res) => {
       }
 
       delete PRODUCTS_DB[id]
+
+      saveProducts()
 
       return res.status(200).json({
         success: true,

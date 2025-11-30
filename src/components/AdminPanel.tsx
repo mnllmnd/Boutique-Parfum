@@ -43,23 +43,35 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
   const [editName, setEditName] = useState('')
   const [editDescription, setEditDescription] = useState('')
 
-  // Load products when tab changes
+  // Load products when tab changes or on mount
   useEffect(() => {
-    if (activeTab === 'manage' && isAuthenticated) {
+    if (isAuthenticated) {
       loadProducts()
     }
-  }, [activeTab, isAuthenticated])
+  }, [isAuthenticated])
+
+  // Clear form after successful upload
+  const clearForm = () => {
+    setProductName('')
+    setProductDescription('')
+    setProductId('')
+    setSelectedFile(null)
+    setSelectedAudio(null)
+    setRecordedAudioUrl('')
+  }
 
   const loadProducts = async () => {
     setLoadingProducts(true)
     try {
       const response = await fetch('/api/products')
+      if (!response.ok) throw new Error('Failed to load products')
       const data = await response.json()
       if (data.products) {
         setProducts(data.products)
       }
     } catch (error) {
       console.error('Erreur chargement produits:', error)
+      setUploadStatus('✗ Erreur chargement produits')
     } finally {
       setLoadingProducts(false)
     }
@@ -79,6 +91,7 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
       if (response.ok) {
         setProducts(products.filter(p => p.id !== prodId))
         setUploadStatus('✓ Produit supprimé')
+        setTimeout(() => setUploadStatus(''), 3000)
       } else {
         setUploadStatus('✗ Erreur suppression')
       }
@@ -118,6 +131,7 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
         ))
         setEditingProduct(null)
         setUploadStatus('✓ Produit modifié')
+        setTimeout(() => setUploadStatus(''), 3000)
       } else {
         setUploadStatus('✗ Erreur modification')
       }
@@ -128,11 +142,10 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
-    // Authentification admin - le mot de passe est stocké dans les variables d'environnement
-    // Pour la démo, accepte n'importe quel mot de passe et le stocke comme token
     if (adminToken.length > 0) {
       setIsAuthenticated(true)
       setUploadStatus('Authentifié avec succès ✓')
+      setTimeout(() => setUploadStatus(''), 3000)
     } else {
       setUploadStatus('Veuillez entrer un mot de passe')
     }
@@ -168,7 +181,6 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
         const audioFile = new File([audioBlob], 'recording.webm', { type: 'audio/webm' })
         setSelectedAudio(audioFile)
         
-        // Créer une URL pour l'écoute
         const url = URL.createObjectURL(audioBlob)
         setRecordedAudioUrl(url)
       }
@@ -178,10 +190,9 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
       setIsRecording(true)
       setRecordingTime(0)
       
-      // Compteur de temps
       const interval = setInterval(() => {
         setRecordingTime(prev => {
-          if (prev >= 300) { // Max 5 minutes
+          if (prev >= 300) {
             recorder.stop()
             clearInterval(interval)
             return 300
@@ -215,178 +226,108 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
     setUploadStatus('Upload en cours...')
 
     try {
-      const reader = new FileReader()
-      reader.readAsDataURL(selectedFile)
-      
-      reader.onload = async () => {
-        const base64String = reader.result as string
-        const base64 = base64String.split(',')[1]
-        
-        const response = await fetch('/api/upload', {
+      // Convert image to base64
+      const imageBase64 = await new Promise<string>((resolve) => {
+        const reader = new FileReader()
+        reader.onload = () => {
+          const base64String = reader.result as string
+          resolve(base64String.split(',')[1])
+        }
+        reader.readAsDataURL(selectedFile)
+      })
+
+      // Upload image
+      const imageResponse = await fetch('/api/upload', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${adminToken}`
+        },
+        body: JSON.stringify({
+          file: imageBase64,
+          publicId: productId || `product_${Date.now()}`
+        })
+      })
+
+      if (!imageResponse.ok) {
+        throw new Error(`Erreur serveur: ${imageResponse.status}`)
+      }
+
+      const imageData = await imageResponse.json()
+      setUploadUrl(imageData.url)
+
+      let audioUrl = ''
+      // Upload audio if exists
+      if (selectedAudio) {
+        try {
+          const audioBase64 = await new Promise<string>((resolve) => {
+            const reader = new FileReader()
+            reader.onload = () => {
+              const base64String = reader.result as string
+              resolve(base64String.split(',')[1])
+            }
+            reader.readAsDataURL(selectedAudio)
+          })
+
+          const audioResponse = await fetch('/api/upload', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${adminToken}`
+            },
+            body: JSON.stringify({
+              file: audioBase64,
+              publicId: `audio_${productId || Date.now()}`
+            })
+          })
+
+          if (audioResponse.ok) {
+            const audioData = await audioResponse.json()
+            audioUrl = audioData.url
+          }
+        } catch (error) {
+          console.error('Audio upload failed:', error)
+        }
+      }
+
+      // Create product
+      if (productName.trim()) {
+        const productData = {
+          id: productId || `product_${Date.now()}`,
+          name: productName,
+          description: productDescription,
+          image: imageData.url,
+          ...(audioUrl && { audioUrl }),
+          fullDescription: productDescription,
+          topNotes: 'Bergamote',
+          heartNotes: 'Fleur',
+          baseNotes: 'Bois'
+        }
+
+        const createResponse = await fetch('/api/products', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${adminToken}`
           },
-          body: JSON.stringify({
-            file: base64,
-            publicId: productId || `product_${Date.now()}`
-          })
+          body: JSON.stringify(productData)
         })
 
-        if (!response.ok) {
-          await response.text()
-          setUploadStatus(`✗ Erreur serveur: ${response.status}`)
-          setUploading(false)
-          return
-        }
-
-        const data = await response.json() as { url: string; publicId: string }
-        setUploadUrl(data.url)
-
-        // Upload audio si sélectionné
-        let audioUrlResult = ''
-        if (selectedAudio) {
-          try {
-            const audioReader = new FileReader()
-            audioReader.readAsDataURL(selectedAudio)
-            
-            audioReader.onload = async () => {
-              const audioBase64String = audioReader.result as string
-              const audioBase64 = audioBase64String.split(',')[1]
-              
-              const audioResponse = await fetch('/api/upload', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${adminToken}`
-                },
-                body: JSON.stringify({
-                  file: audioBase64,
-                  publicId: `audio_${productId || Date.now()}`
-                })
-              })
-
-              if (audioResponse.ok) {
-                const audioData = await audioResponse.json()
-                audioUrlResult = audioData.url
-              }
-
-              // Créer le produit avec image et audio
-              if (productName.trim()) {
-                try {
-                  const createResponse = await fetch('/api/products', {
-                    method: 'POST',
-                    headers: {
-                      'Content-Type': 'application/json',
-                      'Authorization': `Bearer ${adminToken}`
-                    },
-                    body: JSON.stringify({
-                      id: productId || `product_${Date.now()}`,
-                      name: productName,
-                      description: productDescription,
-                      image: data.url,
-                      audioUrl: audioUrlResult || undefined,
-                      fullDescription: productDescription,
-                      topNotes: 'Bergamote',
-                      heartNotes: 'Fleur',
-                      baseNotes: 'Bois'
-                    })
-                  })
-
-                  if (createResponse.ok) {
-                    setUploadStatus(`✓ Produit créé avec succès!`)
-                    setProductName('')
-                    setProductDescription('')
-                    setSelectedAudio(null)
-                    loadProducts()
-                  }
-                } catch {
-                  setUploadStatus(`✓ Upload réussi!`)
-                }
-              }
-
-              setSelectedFile(null)
-              navigator.clipboard.writeText(data.url)
-              setUploading(false)
-            }
-          } catch {
-            // Si l'audio échoue, continuer avec juste l'image
-            if (productName.trim()) {
-              try {
-                const createResponse = await fetch('/api/products', {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${adminToken}`
-                  },
-                  body: JSON.stringify({
-                    id: productId || `product_${Date.now()}`,
-                    name: productName,
-                    description: productDescription,
-                    image: data.url,
-                    fullDescription: productDescription,
-                    topNotes: 'Bergamote',
-                    heartNotes: 'Fleur',
-                    baseNotes: 'Bois'
-                  })
-                })
-
-                if (createResponse.ok) {
-                  setUploadStatus(`✓ Produit créé (audio non uploadé)`)
-                  setProductName('')
-                  setProductDescription('')
-                  loadProducts()
-                }
-              } catch {
-                setUploadStatus(`✓ Upload réussi!`)
-              }
-            }
-            setSelectedFile(null)
-            setUploading(false)
-          }
+        if (createResponse.ok) {
+          setUploadStatus('✓ Produit créé avec succès!')
+          clearForm()
+          loadProducts() // Refresh products list
         } else {
-          // Pas d'audio, juste créer le produit avec l'image
-          if (productName.trim()) {
-            try {
-              const createResponse = await fetch('/api/products', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${adminToken}`
-                },
-                body: JSON.stringify({
-                  id: productId || `product_${Date.now()}`,
-                  name: productName,
-                  description: productDescription,
-                  image: data.url,
-                  fullDescription: productDescription,
-                  topNotes: 'Bergamote',
-                  heartNotes: 'Fleur',
-                  baseNotes: 'Bois'
-                })
-              })
-
-              if (createResponse.ok) {
-                setUploadStatus(`✓ Produit créé avec succès!`)
-                setProductName('')
-                setProductDescription('')
-                loadProducts()
-              } else {
-                setUploadStatus(`✓ Upload réussi! (Produit non créé)`)
-              }
-            } catch {
-              setUploadStatus(`✓ Upload réussi! (Erreur création produit)`)
-            }
-          }
-          
-          setSelectedFile(null)
-          navigator.clipboard.writeText(data.url)
-          setUploading(false)
+          setUploadStatus('✓ Upload réussi! (Erreur création produit)')
         }
+      } else {
+        setUploadStatus('✓ Upload réussi!')
       }
+
+      navigator.clipboard.writeText(imageData.url)
     } catch (error) {
       setUploadStatus(`✗ Erreur: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    } finally {
       setUploading(false)
     }
   }
@@ -409,7 +350,11 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
             <button type="submit" className="admin-btn">Se connecter</button>
           </form>
 
-          {uploadStatus && <p className="admin-status">{uploadStatus}</p>}
+          {uploadStatus && (
+            <div className={`admin-status ${uploadStatus.includes('✓') ? 'success' : 'error'}`}>
+              {uploadStatus}
+            </div>
+          )}
         </div>
       </div>
     )
@@ -424,7 +369,7 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
               className={`admin-tab ${activeTab === 'upload' ? 'active' : ''}`}
               onClick={() => setActiveTab('upload')}
             >
-              📤 Uploader
+              📤 Upload
             </button>
             <button 
               className={`admin-tab ${activeTab === 'manage' ? 'active' : ''}`}
@@ -456,11 +401,11 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="productId">ID Produit (optionnel)</label>
+                  <label htmlFor="productId">ID Produit</label>
                   <input
                     id="productId"
                     type="text"
-                    placeholder="Ex: product_123"
+                    placeholder="Auto-généré si vide"
                     value={productId}
                     onChange={(e) => setProductId(e.target.value)}
                     className="admin-input"
@@ -468,7 +413,7 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="productName">Nom du Produit (optionnel)</label>
+                  <label htmlFor="productName">Nom du Produit</label>
                   <input
                     id="productName"
                     type="text"
@@ -480,7 +425,7 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="productDescription">Description (optionnel)</label>
+                  <label htmlFor="productDescription">Description</label>
                   <textarea
                     id="productDescription"
                     placeholder="Décrire le produit..."
@@ -492,9 +437,8 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
                 </div>
 
                 <div className="form-group">
-                  <label>Audio/Vocal (optionnel)</label>
+                  <label>Audio (optionnel)</label>
                   
-                  {/* Enregistreur audio */}
                   <div className="audio-recorder">
                     {!isRecording ? (
                       <button
@@ -520,7 +464,6 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
                     )}
                   </div>
 
-                  {/* Preview enregistrement */}
                   {recordedAudioUrl && (
                     <div className="audio-preview">
                       <audio controls src={recordedAudioUrl} />
@@ -530,7 +473,6 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
                         onClick={() => {
                           setRecordedAudioUrl('')
                           setSelectedAudio(null)
-                          setUploadStatus('')
                         }}
                       >
                         ✕ Supprimer
@@ -538,7 +480,6 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
                     </div>
                   )}
 
-                  {/* OU importer un fichier */}
                   <div className="audio-or">ou</div>
                   <input
                     id="audio"
@@ -557,7 +498,7 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
                   className="admin-btn"
                   disabled={!selectedFile || uploading}
                 >
-                  {uploading ? 'Upload en cours...' : 'Uploader l\'image'}
+                  {uploading ? 'Upload...' : 'Uploader'}
                 </button>
               </form>
 
@@ -569,7 +510,7 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
 
               {uploadUrl && (
                 <div className="upload-result">
-                  <p className="result-label">URL de l'image :</p>
+                  <p className="result-label">URL image :</p>
                   <div className="url-box">
                     <input 
                       type="text" 
@@ -580,27 +521,26 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
                     <button 
                       className="copy-btn"
                       onClick={() => navigator.clipboard.writeText(uploadUrl)}
-                      title="Copier l'URL"
                     >
-                      📋 Copier
+                      📋
                     </button>
                   </div>
                 </div>
               )}
-
-              <div className="admin-info">
-                <h3>ℹ️ Instructions</h3>
-                <ul>
-                  <li><strong>Image</strong> : JPG ou PNG (requis)</li>
-                  <li><strong>ID Produit</strong> : Auto-généré si vide</li>
-                  <li><strong>Nom & Description</strong> : Optionnels</li>
-                  <li>L'URL est copiée automatiquement au presse-papiers</li>
-                </ul>
-              </div>
             </>
           ) : (
             <>
-              <h3 className="manage-title">Gérer les produits</h3>
+              <div className="manage-header">
+                <h3 className="manage-title">Produits ({products.length})</h3>
+                <button 
+                  className="refresh-btn"
+                  onClick={loadProducts}
+                  disabled={loadingProducts}
+                >
+                  🔄
+                </button>
+              </div>
+              
               {loadingProducts && <p className="loading">Chargement...</p>}
               
               {editingProduct ? (
@@ -629,7 +569,7 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
                       className="admin-btn save-btn"
                       onClick={handleSaveEdit}
                     >
-                      💾 Enregistrer
+                      💾 Sauvegarder
                     </button>
                     <button 
                       className="admin-btn cancel-btn"
@@ -656,14 +596,12 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
                           <button 
                             className="action-btn edit-btn"
                             onClick={() => handleEditProduct(product)}
-                            title="Modifier"
                           >
                             ✏️
                           </button>
                           <button 
                             className="action-btn delete-btn"
                             onClick={() => handleDeleteProduct(product.id)}
-                            title="Supprimer"
                           >
                             🗑️
                           </button>
