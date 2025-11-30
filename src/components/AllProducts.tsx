@@ -1,8 +1,20 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './AllProducts.css'
 import ProductDetails from './ProductDetails'
 
-const ALL_PRODUCTS = [
+interface Product {
+  id: number | string
+  name: string
+  description: string
+  notes: string
+  image: string
+  fullDescription: string
+  topNotes: string
+  heartNotes: string
+  baseNotes: string
+}
+
+const DEFAULT_PRODUCTS: Product[] = [
   {
     id: 1,
     name: 'Sauvage Dior',
@@ -50,9 +62,26 @@ const ALL_PRODUCTS = [
 ]
 
 export default function AllProducts() {
-  const [selectedProductId, setSelectedProductId] = useState<number | null>(null)
+  const [products, setProducts] = useState<Product[]>(DEFAULT_PRODUCTS)
+  const [selectedProductId, setSelectedProductId] = useState<number | string | null>(null)
 
-  const handleProductClick = (productId: number, e: React.MouseEvent) => {
+  useEffect(() => {
+    // Charger les produits depuis l'API
+    fetch('/api/products')
+      .then(res => res.json())
+      .then(data => {
+        if (data.products && Array.isArray(data.products) && data.products.length > 0) {
+          // Combiner les produits de l'API avec les produits par défaut
+          setProducts([...DEFAULT_PRODUCTS, ...data.products])
+        }
+      })
+      .catch(err => {
+        console.log('API not available, using default products', err)
+        setProducts(DEFAULT_PRODUCTS)
+      })
+  }, [])
+
+  const handleProductClick = (productId: number | string, e: React.MouseEvent) => {
     // Vérifier si le clic vient du bouton WhatsApp
     const isWhatsAppButton = (e.target as Element).closest('.whatsapp-btn-compact')
     
@@ -76,7 +105,7 @@ export default function AllProducts() {
           <p className="products-page-subtitle">Explorez notre sélection exclusive de parfums</p>
           
           <div className="products-showcase">
-            {ALL_PRODUCTS.map(product => (
+            {products.map(product => (
               <div
                 key={product.id}
                 className="product-card-compact"

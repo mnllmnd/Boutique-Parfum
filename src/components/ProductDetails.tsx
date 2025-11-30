@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './ProductDetails.css'
 
-const PRODUCTS = [
+const DEFAULT_PRODUCTS = [
   {
     id: 1,
     name: 'Sauvage Dior',
@@ -14,8 +14,7 @@ const PRODUCTS = [
     heartNotes: 'Oud, Patchouli',
     baseNotes: 'Musc, Ambre, Vanille'
   },
-  // ... autres produits
-   {
+  {
     id: 2,
     name: 'Black Orchid',
     description: 'Frais et élégant',
@@ -53,8 +52,21 @@ const PRODUCTS = [
   }
 ]
 
+interface Product {
+  id: number | string
+  name: string
+  description: string
+  notes?: string
+  image: string
+  audioUrl?: string
+  fullDescription?: string
+  topNotes?: string
+  heartNotes?: string
+  baseNotes?: string
+}
+
 interface ProductDetailsProps {
-  readonly productId: number
+  readonly productId: number | string
   readonly onClose: () => void
 }
 
@@ -66,8 +78,31 @@ export default function ProductDetails({ productId, onClose }: ProductDetailsPro
     about: false
   })
   const [isPlayingAudio, setIsPlayingAudio] = useState(false)
+  const [allProducts, setAllProducts] = useState<Product[]>(DEFAULT_PRODUCTS)
 
-  const product = PRODUCTS.find(p => p.id === productId)
+  // Load products from API on mount
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        const response = await fetch('/api/products')
+        const data = await response.json()
+        if (data.products) {
+          setAllProducts(prev => {
+            // Combine API products with defaults (API first to override defaults)
+            const apiIds = new Set(data.products.map((p: Product) => p.id))
+            const defaults = prev.filter(p => !apiIds.has(p.id))
+            return [...data.products, ...defaults]
+          })
+        }
+      } catch (error) {
+        console.error('Erreur chargement produits:', error)
+        // Fallback to defaults already in state
+      }
+    }
+    loadProducts()
+  }, [])
+
+  const product = allProducts.find(p => p.id === productId)
 
   const toggleSection = (sectionId: string) => {
     setExpandedSections(prev => ({

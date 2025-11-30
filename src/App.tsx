@@ -7,11 +7,13 @@ import AllProducts from './components/AllProducts'
 import Contact from './components/Contact'
 import Footer from './components/Footer'
 import WhatsAppButton from './components/WhatsAppButton'
+import AdminPanel from './components/AdminPanel'
 
 type Page = 'home' | 'products' | 'contact'
 
 function App() {
   const [currentPage, setCurrentPage] = useState<Page>('home')
+  const [showAdminPanel, setShowAdminPanel] = useState(false)
 
   return (
     <div className="app">
@@ -32,7 +34,8 @@ function App() {
         <Contact />
       )}
       
-      <Footer />
+      <Footer onAdminClick={() => setShowAdminPanel(true)} />
+      {showAdminPanel && <AdminPanel onClose={() => setShowAdminPanel(false)} />}
       <WhatsAppButton />
     </div>
   )

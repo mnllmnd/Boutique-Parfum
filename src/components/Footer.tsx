@@ -1,6 +1,10 @@
 import './Footer.css'
 
-export default function Footer() {
+interface FooterProps {
+  readonly onAdminClick?: () => void
+}
+
+export default function Footer({ onAdminClick }: FooterProps) {
   const currentYear = new Date().getFullYear()
 
   return (
@@ -36,6 +40,9 @@ export default function Footer() {
         </div>
         <div className="footer-bottom">
           <p>&copy; {currentYear} LUXE Parfums. Tous droits réservés.</p>
+          <button className="admin-icon" onClick={onAdminClick} title="Admin Panel" aria-label="Admin Panel">
+            ⚙️
+          </button>
         </div>
       </div>
     </footer>
