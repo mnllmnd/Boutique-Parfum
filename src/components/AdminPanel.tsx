@@ -349,7 +349,8 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
         },
         body: JSON.stringify({
           file: imageBase64,
-          publicId: `product_${Date.now()}`
+          publicId: `product_${Date.now()}`,
+          fileType: selectedFile.type
         })
       })
 
@@ -381,7 +382,8 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
             },
             body: JSON.stringify({
               file: audioBase64,
-              publicId: `audio_${Date.now()}`
+              publicId: `audio_${Date.now()}`,
+              fileType: selectedAudio.type
             })
           })
 
