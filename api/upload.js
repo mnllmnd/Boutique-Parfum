@@ -15,8 +15,17 @@ export default async function handler(req, res) {
   if (!file) return res.status(400).json({ error: "Missing file" })
   if (!publicId) return res.status(400).json({ error: "Missing publicId" })
 
-  // Nettoyer le publicId pour enlever les slashes et caractères spéciaux
-  const cleanPublicId = String(publicId).replaceAll(/[^a-zA-Z0-9_-]/g, '_').substring(0, 100)
+  // Nettoyer le publicId pour enlever les slashes, espaces et caractères spéciaux
+  let cleanPublicId = String(publicId)
+    .trim()
+    .replace(/[^a-zA-Z0-9_-]/g, "_")
+    .substring(0, 100)
+
+  // Nettoyage strict du folder → obligatoire pour éviter l'erreur Cloudinary
+  const folder = "parfum"
+    .trim()
+    .replace(/[^a-zA-Z0-9_-]/g, "")  // Aucun slash, aucun espace
+    || "uploads"
 
   const uploadPreset = process.env.CLOUDINARY_UPLOAD_PRESET
   const cloudName = process.env.CLOUDINARY_CLOUD_NAME
@@ -28,37 +37,34 @@ export default async function handler(req, res) {
   const uploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/upload`
 
   try {
-    // Vérifier que le fichier base64 est valide
     if (typeof file !== 'string' || file.length === 0) {
       return res.status(400).json({ error: "Invalid file data" })
     }
 
-    // Log pour déboguer
-    console.log('Upload request:', {
-      cleanPublicId,
-      fileType: fileType || 'image/jpeg',
-      fileSize: file.length,
-      cloudName
-    })
+    // Logs très détaillées
+    console.log("==== CLEAN VALUES BEFORE UPLOAD ====");
+    console.log("FINAL PUBLIC_ID:", cleanPublicId);
+    console.log("FINAL FOLDER:", folder);
+    console.log("FILE SIZE:", file.length);
+    console.log("====================================");
 
-    // Essayer avec FormData simulé (URLSearchParams)
     const bodyData = new URLSearchParams()
-    bodyData.append('file', `data:${fileType || 'image/jpeg'};base64,${file}`)
-    bodyData.append('upload_preset', uploadPreset)
-    bodyData.append('folder', 'parfum')
-    bodyData.append('public_id', cleanPublicId)
+    bodyData.append("file", `data:${fileType || "image/jpeg"};base64,${file}`)
+    bodyData.append("upload_preset", uploadPreset)
+    bodyData.append("folder", folder)
+    bodyData.append("public_id", cleanPublicId)
 
-    console.log('FormData keys:', Array.from(bodyData.keys()))
+    console.log("FormData keys:", Array.from(bodyData.keys()))
 
     const response = await fetch(uploadUrl, {
-      method: 'POST',
+      method: "POST",
       body: bodyData
     })
 
     const data = await response.json()
 
     if (!response.ok) {
-      console.error('Cloudinary error details:', {
+      console.error("Cloudinary error details:", {
         status: response.status,
         error: data.error,
         message: data.message,
@@ -73,10 +79,11 @@ export default async function handler(req, res) {
       url: data.secure_url,
       publicId: data.public_id
     })
+
   } catch (error) {
-    console.error('Upload error:', error)
+    console.error("Upload error:", error)
     return res.status(500).json({
-      error: error instanceof Error ? error.message : 'Server error'
+      error: error instanceof Error ? error.message : "Server error"
     })
   }
 }
