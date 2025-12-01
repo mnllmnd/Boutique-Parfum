@@ -15,6 +15,9 @@ export default async function handler(req, res) {
   if (!file) return res.status(400).json({ error: "Missing file" })
   if (!publicId) return res.status(400).json({ error: "Missing publicId" })
 
+  // Nettoyer le publicId pour enlever les slashes et caractères spéciaux
+  const cleanPublicId = publicId.replace(/[^a-zA-Z0-9_-]/g, '_')
+
   const uploadPreset = process.env.CLOUDINARY_UPLOAD_PRESET
   const cloudName = process.env.CLOUDINARY_CLOUD_NAME
 
@@ -31,7 +34,7 @@ export default async function handler(req, res) {
 
     // FIX : folder séparé + public_id simple
     bodyData.append('folder', 'parfum')
-    bodyData.append('public_id', publicId)
+    bodyData.append('public_id', cleanPublicId)
 
     const response = await fetch(uploadUrl, {
       method: 'POST',
