@@ -67,17 +67,18 @@
 .admin-close {
   background: none;
   border: none;
-  font-size: 1.375rem;
+  font-size: 1.75rem;
   cursor: pointer;
   color: #666;
   padding: 0.5rem;
-  width: 44px;
-  height: 44px;
+  width: 50px;
+  height: 50px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
   transition: all 0.2s ease;
+  font-weight: 300;
 }
 
 .admin-close:hover {
@@ -108,7 +109,7 @@
   background: transparent;
   border: none;
   border-radius: 8px;
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
@@ -117,19 +118,6 @@
   text-align: center;
   position: relative;
   overflow: hidden;
-}
-
-.admin-tab::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  border-radius: 8px;
 }
 
 .admin-tab.active {
@@ -149,7 +137,7 @@
 .admin-form {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem;
 }
 
 .form-group {
@@ -159,7 +147,7 @@
 }
 
 .form-group label {
-  font-size: 0.875rem;
+  font-size: 1rem;
   font-weight: 600;
   color: #333;
   letter-spacing: -0.01em;
@@ -199,13 +187,8 @@
   background: #f0f4ff;
 }
 
-.file-upload-label:has(+ .file-input:focus) {
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
 .file-upload-icon {
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   color: #667eea;
   flex-shrink: 0;
 }
@@ -213,7 +196,7 @@
 .file-upload-text {
   flex: 1;
   color: #333;
-  font-size: 0.95rem;
+  font-size: 1rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -243,7 +226,7 @@
 }
 
 .file-hint {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: #666;
   margin: 0.25rem 0 0 0.5rem;
   font-style: italic;
@@ -251,9 +234,9 @@
 
 .admin-input {
   padding: 1rem 1.25rem;
-  border: 1.5px solid #f0f0f0;
+  border: 2px solid #e0e0e0;
   border-radius: 12px;
-  font-size: 1rem;
+  font-size: 1.1rem;
   transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   width: 100%;
   box-sizing: border-box;
@@ -277,24 +260,61 @@
 
 .admin-textarea {
   resize: vertical;
-  min-height: 100px;
+  min-height: 80px;
   line-height: 1.5;
   font-family: inherit;
+}
+
+/* Notes toggle button */
+.notes-toggle-btn {
+  padding: 0.875rem 1rem;
+  background: #f8f9fa;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #666;
+}
+
+.notes-toggle-btn:hover {
+  background: #f0f4ff;
+  border-color: #667eea;
+  color: #667eea;
 }
 
 .composition-fields {
   display: flex;
   flex-direction: column;
-  gap: 0.875rem;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .admin-btn {
-  padding: 1.125rem 1.5rem;
+  padding: 1.25rem 1.5rem;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
   border-radius: 12px;
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
@@ -304,7 +324,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
 }
 
 .admin-btn::before {
@@ -348,7 +368,7 @@
   border-radius: 12px;
   border-left: 4px solid #667eea;
   color: #333;
-  font-size: 0.9rem;
+  font-size: 1rem;
   margin: 1rem 0;
   font-weight: 500;
   line-height: 1.5;
@@ -371,11 +391,11 @@
   background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
   border-radius: 12px;
   margin: 1rem 0;
-  border: 1.5px solid #bae6fd;
+  border: 2px solid #bae6fd;
 }
 
 .result-label {
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-weight: 600;
   color: #0369a1;
   margin: 0 0 0.75rem 0;
@@ -390,7 +410,7 @@
 .url-input {
   flex: 1;
   padding: 0.875rem 1rem;
-  border: 1.5px solid #bae6fd;
+  border: 2px solid #bae6fd;
   border-radius: 8px;
   font-size: 0.875rem;
   background: white;
@@ -399,19 +419,20 @@
 }
 
 .copy-btn {
-  padding: 0.875rem 1.25rem;
+  padding: 0.875rem 1.5rem;
   background: #0369a1;
   color: white;
   border: none;
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
-  min-width: 100px;
+  min-width: 120px;
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  font-size: 1rem;
 }
 
 .copy-btn:hover {
@@ -429,12 +450,12 @@
 }
 
 .record-btn {
-  padding: 1.125rem 1.5rem;
+  padding: 1.25rem 1.5rem;
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: white;
   border: none;
   border-radius: 12px;
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -444,7 +465,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
 }
 
 .record-btn::before {
@@ -482,7 +503,7 @@
 }
 
 .recording-time {
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   font-weight: 700;
   color: #ef4444;
   min-width: 60px;
@@ -496,12 +517,12 @@
   background: #f8f9fa;
   padding: 1rem;
   border-radius: 12px;
-  border: 1.5px solid #e5e7eb;
+  border: 2px solid #e5e7eb;
 }
 
 .audio-preview audio {
   width: 100%;
-  height: 40px;
+  height: 45px;
   border-radius: 8px;
 }
 
@@ -509,7 +530,7 @@
   padding: 0.875rem;
   background: white;
   color: #ef4444;
-  border: 1.5px solid #ef4444;
+  border: 2px solid #ef4444;
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
@@ -520,6 +541,7 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  font-size: 1rem;
 }
 
 .delete-audio-btn:hover {
@@ -533,6 +555,7 @@
   margin: 1rem 0;
   font-weight: 600;
   position: relative;
+  font-size: 1rem;
 }
 
 .audio-or::before,
@@ -541,7 +564,7 @@
   position: absolute;
   top: 50%;
   width: 30%;
-  height: 1px;
+  height: 2px;
   background: #e5e7eb;
 }
 
@@ -571,13 +594,13 @@
 
 .refresh-btn {
   background: #f8f9fa;
-  border: 1.5px solid #e5e7eb;
+  border: 2px solid #e5e7eb;
   border-radius: 10px;
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   cursor: pointer;
   padding: 0.5rem;
-  width: 44px;
-  height: 44px;
+  width: 50px;
+  height: 50px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -606,24 +629,12 @@
   display: flex;
   gap: 1rem;
   padding: 1.25rem;
-  border: 1.5px solid #f0f0f0;
+  border: 2px solid #f0f0f0;
   border-radius: 12px;
   background: #fafafa;
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
-}
-
-.product-item::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 3px;
-  height: 100%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
 }
 
 .product-item:hover {
@@ -632,17 +643,13 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.product-item:hover::before {
-  opacity: 1;
-}
-
 .product-thumb {
   width: 80px;
   height: 80px;
   object-fit: cover;
   border-radius: 8px;
   flex-shrink: 0;
-  border: 1.5px solid #e5e7eb;
+  border: 2px solid #e5e7eb;
 }
 
 .product-info {
@@ -652,7 +659,7 @@
 
 .product-info h4 {
   margin: 0 0 0.5rem 0;
-  font-size: 1rem;
+  font-size: 1.1rem;
   color: #333;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -660,9 +667,9 @@
   font-weight: 600;
 }
 
-.product-info p {
+.product-desc {
   margin: 0 0 0.5rem 0;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   color: #666;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -672,33 +679,43 @@
   line-height: 1.4;
 }
 
-.product-notes {
-  font-size: 0.85rem;
-  color: #888;
-  font-style: italic;
-  margin: 0.25rem 0;
+.audio-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+  color: #10b981;
+  font-size: 0.9rem;
+}
+
+.audio-icon {
+  font-size: 1rem;
+}
+
+.audio-text {
+  font-weight: 500;
 }
 
 .product-info small {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: #999;
   font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
 }
 
 .product-actions {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.75rem;
   align-self: flex-start;
 }
 
 .action-btn {
-  width: 44px;
-  height: 44px;
-  border: 1.5px solid #e5e7eb;
+  width: 50px;
+  height: 50px;
+  border: 2px solid #e5e7eb;
   border-radius: 8px;
   background: white;
   cursor: pointer;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -727,11 +744,11 @@
   padding: 1.5rem;
   border-radius: 12px;
   margin: 1rem 0;
-  border: 1.5px solid #e5e7eb;
+  border: 2px solid #e5e7eb;
 }
 
 .edit-title {
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   font-weight: 600;
   color: #333;
   margin: 0 0 1rem 0;
@@ -756,12 +773,12 @@
 }
 
 .admin-logout {
-  padding: 1.125rem;
+  padding: 1.25rem;
   background: transparent;
   color: #666;
-  border: 1.5px solid #f0f0f0;
+  border: 2px solid #f0f0f0;
   border-radius: 0;
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
   margin-top: auto;
@@ -791,6 +808,7 @@
   color: #666;
   font-style: italic;
   padding: 1rem;
+  font-size: 1.1rem;
 }
 
 .no-products {
@@ -800,7 +818,8 @@
   padding: 2rem;
   background: #f8f9fa;
   border-radius: 12px;
-  border: 1.5px dashed #e5e7eb;
+  border: 2px dashed #e5e7eb;
+  font-size: 1.1rem;
 }
 
 /* Animations */
@@ -821,8 +840,8 @@
   }
   
   .admin-container {
-    max-width: 480px;
-    max-height: 85vh;
+    max-width: 500px;
+    max-height: 90vh;
     border-radius: 16px;
     box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
   }
@@ -906,6 +925,18 @@
     background: #363636;
   }
   
+  .notes-toggle-btn {
+    background: #2d2d2d;
+    border-color: #404040;
+    color: #a0a0a0;
+  }
+  
+  .notes-toggle-btn:hover {
+    background: #363636;
+    border-color: #667eea;
+    color: #e0e0e0;
+  }
+  
   .admin-status {
     background: #2d2d2d;
     color: #e0e0e0;
@@ -935,12 +966,12 @@
     color: #e0e0e0;
   }
   
-  .product-info p {
+  .product-desc {
     color: #a0a0a0;
   }
   
-  .product-notes {
-    color: #888;
+  .audio-indicator {
+    color: #10b981;
   }
   
   .action-btn {
@@ -969,5 +1000,34 @@
     background: #2d2d2d;
     border-color: #404040;
     color: #888;
+  }
+}
+
+/* Large text for better accessibility */
+@media (min-width: 768px) {
+  .admin-tab {
+    font-size: 1.1rem;
+  }
+  
+  .admin-input {
+    font-size: 1.15rem;
+  }
+  
+  .admin-btn {
+    font-size: 1.2rem;
+  }
+  
+  .action-btn {
+    width: 60px;
+    height: 60px;
+    font-size: 1.4rem;
+  }
+  
+  .product-info h4 {
+    font-size: 1.2rem;
+  }
+  
+  .product-desc {
+    font-size: 1.05rem;
   }
 }

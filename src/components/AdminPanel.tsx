@@ -11,6 +11,10 @@ interface Product {
   description: string
   image: string
   notes?: string
+  topNotes?: string
+  heartNotes?: string
+  baseNotes?: string
+  audioUrl?: string
 }
 
 type AdminTab = 'upload' | 'manage'
@@ -32,6 +36,7 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
   const [topNotes, setTopNotes] = useState('')
   const [heartNotes, setHeartNotes] = useState('')
   const [baseNotes, setBaseNotes] = useState('')
+  const [showNotes, setShowNotes] = useState(false)
   const [uploadUrl, setUploadUrl] = useState('')
   
   // Audio recording state
@@ -46,6 +51,11 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [editName, setEditName] = useState('')
   const [editDescription, setEditDescription] = useState('')
+  const [editNotes, setEditNotes] = useState('')
+  const [editTopNotes, setEditTopNotes] = useState('')
+  const [editHeartNotes, setEditHeartNotes] = useState('')
+  const [editBaseNotes, setEditBaseNotes] = useState('')
+  const [showEditNotes, setShowEditNotes] = useState(false)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const audioInputRef = useRef<HTMLInputElement>(null)
@@ -68,6 +78,7 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
     setSelectedFile(null)
     setSelectedAudio(null)
     setRecordedAudioUrl('')
+    setShowNotes(false)
     if (fileInputRef.current) fileInputRef.current.value = ''
     if (audioInputRef.current) audioInputRef.current.value = ''
   }
@@ -116,6 +127,11 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
     setEditingProduct(product)
     setEditName(product.name)
     setEditDescription(product.description)
+    setEditNotes(product.notes || '')
+    setEditTopNotes(product.topNotes || '')
+    setEditHeartNotes(product.heartNotes || '')
+    setEditBaseNotes(product.baseNotes || '')
+    setShowEditNotes(false)
   }
 
   const handleSaveEdit = async () => {
@@ -131,14 +147,26 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
         body: JSON.stringify({
           id: editingProduct.id,
           name: editName,
-          description: editDescription
+          description: editDescription,
+          notes: editNotes,
+          topNotes: editTopNotes,
+          heartNotes: editHeartNotes,
+          baseNotes: editBaseNotes
         })
       })
 
       if (response.ok) {
         setProducts(products.map(p => 
           p.id === editingProduct.id 
-            ? { ...p, name: editName, description: editDescription }
+            ? { 
+                ...p, 
+                name: editName, 
+                description: editDescription,
+                notes: editNotes,
+                topNotes: editTopNotes,
+                heartNotes: editHeartNotes,
+                baseNotes: editBaseNotes
+              }
             : p
         ))
         setEditingProduct(null)
@@ -421,7 +449,6 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
           image: imageData.url,
           ...(audioUrl && { audioUrl }),
           ...(productNotes && { notes: productNotes }),
-          fullDescription: productDescription,
           ...(topNotes && { topNotes }),
           ...(heartNotes && { heartNotes }),
           ...(baseNotes && { baseNotes })
@@ -534,18 +561,6 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="productNotes">Notes détaillées</label>
-                  <input
-                    id="productNotes"
-                    type="text"
-                    placeholder="Ex: Senteur florale, épicée, notes boisées..."
-                    value={productNotes}
-                    onChange={(e) => setProductNotes(e.target.value)}
-                    className="admin-input"
-                  />
-                </div>
-
-                <div className="form-group">
                   <label htmlFor="productName">Nom du produit *</label>
                   <input
                     id="productName"
@@ -566,35 +581,56 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
                     value={productDescription}
                     onChange={(e) => setProductDescription(e.target.value)}
                     className="admin-input admin-textarea"
-                    rows={4}
+                    rows={3}
                   />
                 </div>
 
                 <div className="form-group">
-                  <label>Composition (optionnel)</label>
-                  <div className="composition-fields">
-                    <input
-                      type="text"
-                      placeholder="Notes de Tête (ex: Bergamote, Citron, Fruits rouges)"
-                      value={topNotes}
-                      onChange={(e) => setTopNotes(e.target.value)}
-                      className="admin-input"
-                    />
-                    <input
-                      type="text"
-                      placeholder="Notes de Cœur (ex: Rose, Jasmin, Muguet)"
-                      value={heartNotes}
-                      onChange={(e) => setHeartNotes(e.target.value)}
-                      className="admin-input"
-                    />
-                    <input
-                      type="text"
-                      placeholder="Notes de Base (ex: Vanille, Musc, Bois de Santal)"
-                      value={baseNotes}
-                      onChange={(e) => setBaseNotes(e.target.value)}
-                      className="admin-input"
-                    />
-                  </div>
+                  <label htmlFor="productNotes">Notes détaillées</label>
+                  <input
+                    id="productNotes"
+                    type="text"
+                    placeholder="Ex: Senteur florale, épicée, notes boisées..."
+                    value={productNotes}
+                    onChange={(e) => setProductNotes(e.target.value)}
+                    className="admin-input"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <button
+                    type="button"
+                    className="notes-toggle-btn"
+                    onClick={() => setShowNotes(!showNotes)}
+                  >
+                    {showNotes ? '−' : '+'} Notes de composition (optionnel)
+                  </button>
+                  
+                  {showNotes && (
+                    <div className="composition-fields">
+                      <input
+                        type="text"
+                        placeholder="Notes de Tête"
+                        value={topNotes}
+                        onChange={(e) => setTopNotes(e.target.value)}
+                        className="admin-input"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Notes de Cœur"
+                        value={heartNotes}
+                        onChange={(e) => setHeartNotes(e.target.value)}
+                        className="admin-input"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Notes de Base"
+                        value={baseNotes}
+                        onChange={(e) => setBaseNotes(e.target.value)}
+                        className="admin-input"
+                      />
+                    </div>
+                  )}
                 </div>
 
                 <div className="form-group">
@@ -636,7 +672,7 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
                           setSelectedAudio(null)
                         }}
                       >
-                        ✕ Supprimer l'enregistrement
+                        ✕ Supprimer
                       </button>
                     </div>
                   )}
@@ -655,12 +691,12 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
                     <label htmlFor="audio" className="file-upload-label">
                       <span className="file-upload-icon">🎵</span>
                       <span className="file-upload-text">
-                        {selectedAudio && !recordedAudioUrl ? selectedAudio.name : 'Importer un fichier audio'}
+                        {selectedAudio && !recordedAudioUrl ? selectedAudio.name : 'Importer un audio'}
                       </span>
                       <span className="file-upload-btn">Parcourir</span>
                     </label>
                   </div>
-                  <p className="file-hint">Formats supportés : MP3, M4A, WAV, OGG</p>
+                  <p className="file-hint">Format conseillé : MP3</p>
                 </div>
 
                 <button 
@@ -707,7 +743,7 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
                   className="refresh-btn"
                   onClick={loadProducts}
                   disabled={loadingProducts}
-                  title="Actualiser la liste"
+                  title="Actualiser"
                 >
                   🔄
                 </button>
@@ -719,7 +755,7 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
                 <div className="edit-form">
                   <h4 className="edit-title">Modifier : {editingProduct.name}</h4>
                   <div className="form-group">
-                    <label>Nom</label>
+                    <label>Nom du produit</label>
                     <input
                       type="text"
                       value={editName}
@@ -734,10 +770,57 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
                       value={editDescription}
                       onChange={(e) => setEditDescription(e.target.value)}
                       className="admin-input admin-textarea"
-                      rows={4}
+                      rows={3}
                       placeholder="Description du produit"
                     />
                   </div>
+                  <div className="form-group">
+                    <label>Notes détaillées</label>
+                    <input
+                      type="text"
+                      value={editNotes}
+                      onChange={(e) => setEditNotes(e.target.value)}
+                      className="admin-input"
+                      placeholder="Notes détaillées"
+                    />
+                  </div>
+                  
+                  <div className="form-group">
+                    <button
+                      type="button"
+                      className="notes-toggle-btn"
+                      onClick={() => setShowEditNotes(!showEditNotes)}
+                    >
+                      {showEditNotes ? '−' : '+'} Notes de composition
+                    </button>
+                    
+                    {showEditNotes && (
+                      <div className="composition-fields">
+                        <input
+                          type="text"
+                          placeholder="Notes de Tête"
+                          value={editTopNotes}
+                          onChange={(e) => setEditTopNotes(e.target.value)}
+                          className="admin-input"
+                        />
+                        <input
+                          type="text"
+                          placeholder="Notes de Cœur"
+                          value={editHeartNotes}
+                          onChange={(e) => setEditHeartNotes(e.target.value)}
+                          className="admin-input"
+                        />
+                        <input
+                          type="text"
+                          placeholder="Notes de Base"
+                          value={editBaseNotes}
+                          onChange={(e) => setEditBaseNotes(e.target.value)}
+                          className="admin-input"
+                        />
+                      </div>
+                    )}
+                  </div>
+                  
                   <div className="edit-actions">
                     <button 
                       className="admin-btn save-btn"
@@ -763,9 +846,12 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
                         <img src={product.image} alt={product.name} className="product-thumb" />
                         <div className="product-info">
                           <h4>{product.name}</h4>
-                          <p>{product.description}</p>
-                          {product.notes && (
-                            <p className="product-notes">{product.notes}</p>
+                          <p className="product-desc">{product.description}</p>
+                          {product.audioUrl && (
+                            <div className="audio-indicator">
+                              <span className="audio-icon">🎵</span>
+                              <span className="audio-text">Avec audio</span>
+                            </div>
                           )}
                           <small>ID : {product.id}</small>
                         </div>
