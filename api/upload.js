@@ -16,10 +16,7 @@ export default async function handler(req, res) {
   if (!publicId) return res.status(400).json({ error: "Missing publicId" })
 
   // Nettoyer le publicId pour enlever les slashes et caractères spéciaux
-  const cleanPublicId = String(publicId).replace(/[^a-zA-Z0-9_-]/g, '_').substring(0, 100)
-  
-  // Ajouter le dossier DANS le publicId
-  const fullPublicId = `parfum/${cleanPublicId}`
+  const cleanPublicId = String(publicId).replaceAll(/[^a-zA-Z0-9_-]/g, '_').substring(0, 100)
 
   const uploadPreset = process.env.CLOUDINARY_UPLOAD_PRESET
   const cloudName = process.env.CLOUDINARY_CLOUD_NAME
@@ -38,7 +35,7 @@ export default async function handler(req, res) {
 
     // Log pour déboguer
     console.log('Upload request:', {
-      publicId: fullPublicId,
+      cleanPublicId,
       fileType: fileType || 'image/jpeg',
       fileSize: file.length,
       cloudName
@@ -48,7 +45,8 @@ export default async function handler(req, res) {
     const bodyData = new URLSearchParams()
     bodyData.append('file', `data:${fileType || 'image/jpeg'};base64,${file}`)
     bodyData.append('upload_preset', uploadPreset)
-    bodyData.append('public_id', fullPublicId)
+    bodyData.append('folder', 'parfum')
+    bodyData.append('public_id', cleanPublicId)
 
     console.log('FormData keys:', Array.from(bodyData.keys()))
 
