@@ -30,46 +30,42 @@ export default async function handler(req, res) {
   // URL API Cloudinary
   const uploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/upload`
 
-  // Déterminer le MIME type du fichier
-  let mimeType = 'image/jpeg'
-  if (fileType) {
-    mimeType = fileType
-  } else if (file.startsWith('/9j/') || file.startsWith('iVBORw0KGgo')) {
-    // JPEG ou PNG (images)
-    mimeType = file.startsWith('/9j/') ? 'image/jpeg' : 'image/png'
-  } else {
-    // Probablement audio
-    mimeType = 'audio/webm'
-  }
+  try {
+    // Créer URLSearchParams pour l'upload (compatible avec Cloudinary)
+    const params = new URLSearchParams()
+    params.append('file', `data:${fileType || 'image/jpeg'};base64,${file}`)
+    params.append('upload_preset', uploadPreset)
+    params.append('public_id', publicId)
+    params.append('folder', 'parfum')
 
-  // Déterminer le resource_type
-  const resourceType = mimeType.startsWith('audio') ? 'auto' : 'image'
-
-  // Envoi à Cloudinary
-  const response = await fetch(uploadUrl, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      file: `data:${mimeType};base64,${file}`,
-      upload_preset: uploadPreset,
-      public_id: publicId,
-      folder: "parfum",
-      resource_type: resourceType
+    const response = await fetch(uploadUrl, {
+      method: 'POST',
+      body: params
     })
-  })
 
-  const data = await response.json()
+    const data = await response.json()
 
-  if (!response.ok) {
-    console.error('Cloudinary error:', data)
-    return res.status(400).json({
-      error: data.error?.message || "Upload failed"
+    if (!response.ok) {
+      console.error('Cloudinary error:', {
+        status: response.status,
+        error: data.error,
+        message: data.message
+      })
+      return res.status(400).json({
+        error: data.error?.message || data.message || "Upload failed",
+        details: data.error
+      })
+    }
+
+    // Upload OK
+    return res.status(200).json({
+      url: data.secure_url,
+      publicId: data.public_id
+    })
+  } catch (error) {
+    console.error('Upload error:', error)
+    return res.status(500).json({
+      error: error instanceof Error ? error.message : 'Server error'
     })
   }
-
-  // Upload OK
-  return res.status(200).json({
-    url: data.secure_url,
-    publicId: data.public_id
-  })
 }
