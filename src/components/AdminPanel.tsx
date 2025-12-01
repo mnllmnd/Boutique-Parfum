@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import './AdminPanel.css'
 
 interface AdminPanelProps {
@@ -47,6 +47,9 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
   const [editName, setEditName] = useState('')
   const [editDescription, setEditDescription] = useState('')
 
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const audioInputRef = useRef<HTMLInputElement>(null)
+
   // Load products when tab changes or on mount
   useEffect(() => {
     if (isAuthenticated) {
@@ -65,13 +68,15 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
     setSelectedFile(null)
     setSelectedAudio(null)
     setRecordedAudioUrl('')
+    if (fileInputRef.current) fileInputRef.current.value = ''
+    if (audioInputRef.current) audioInputRef.current.value = ''
   }
 
   const loadProducts = async () => {
     setLoadingProducts(true)
     try {
       const response = await fetch('/api/products')
-      if (!response.ok) throw new Error('Failed to load products')
+      if (!response.ok) throw new Error('Échec du chargement des produits')
       const data = await response.json()
       if (data.products) {
         setProducts(data.products)
@@ -103,7 +108,7 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
         setUploadStatus('✗ Erreur suppression')
       }
     } catch (error) {
-      setUploadStatus(`✗ Erreur: ${error instanceof Error ? error.message : 'Unknown'}`)
+      setUploadStatus(`✗ Erreur: ${error instanceof Error ? error.message : 'Inconnue'}`)
     }
   }
 
@@ -143,7 +148,7 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
         setUploadStatus('✗ Erreur modification')
       }
     } catch (error) {
-      setUploadStatus(`✗ Erreur: ${error instanceof Error ? error.message : 'Unknown'}`)
+      setUploadStatus(`✗ Erreur: ${error instanceof Error ? error.message : 'Inconnue'}`)
     }
   }
 
@@ -175,7 +180,7 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
           }
         }
       } catch (error) {
-        setUploadStatus(`✗ Erreur serveur: ${error instanceof Error ? error.message : 'Unknown'}`)
+        setUploadStatus(`✗ Erreur serveur: ${error instanceof Error ? error.message : 'Inconnue'}`)
         setAdminToken('')
       }
     }
@@ -262,7 +267,7 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
         if (mimeType.includes('ogg')) extension = 'ogg'
         if (mimeType.includes('wav')) extension = 'wav'
         
-        const audioFile = new File([audioBlob], `recording.${extension}`, { type: mimeType })
+        const audioFile = new File([audioBlob], `enregistrement.${extension}`, { type: mimeType })
         setSelectedAudio(audioFile)
         
         const url = URL.createObjectURL(audioBlob)
@@ -333,7 +338,7 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
     }
 
     setUploading(true)
-    setUploadStatus('Upload en cours...')
+    setUploadStatus('Téléversement en cours...')
 
     try {
       // Convert image to base64
@@ -362,7 +367,7 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
 
       if (!imageResponse.ok) {
         const errorData = await imageResponse.json().catch(() => ({}))
-        throw new Error(`Erreur upload: ${imageResponse.status} - ${errorData.error || 'Unknown error'}`)
+        throw new Error(`Erreur upload: ${imageResponse.status} - ${errorData.error || 'Erreur inconnue'}`)
       }
 
       const imageData = await imageResponse.json()
@@ -399,11 +404,11 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
             audioUrl = audioData.url
           } else {
             const errorData = await audioResponse.json().catch(() => ({}))
-            console.error('Audio upload error:', errorData)
+            console.error('Erreur upload audio:', errorData)
           }
         } catch (error) {
-          console.error('Audio upload failed:', error)
-          setUploadStatus(`⚠️ Erreur audio: ${error instanceof Error ? error.message : 'Unknown'}`)
+          console.error('Échec upload audio:', error)
+          setUploadStatus(`⚠️ Erreur audio: ${error instanceof Error ? error.message : 'Inconnue'}`)
         }
       }
 
@@ -444,7 +449,7 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
 
       navigator.clipboard.writeText(imageData.url)
     } catch (error) {
-      setUploadStatus(`✗ Erreur: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      setUploadStatus(`✗ Erreur: ${error instanceof Error ? error.message : 'Erreur inconnue'}`)
     } finally {
       setUploading(false)
     }
@@ -455,12 +460,12 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
       <div className="admin-panel">
         <div className="admin-container">
           <button className="admin-close" onClick={onClose}>✕</button>
-          <h2 className="admin-title">Admin Panel</h2>
+          <h2 className="admin-title">Espace Administrateur</h2>
           
           <form onSubmit={handleLogin} className="admin-login">
             <input
               type="password"
-              placeholder="Mot de passe admin"
+              placeholder="Mot de passe administrateur"
               value={adminToken}
               onChange={(e) => setAdminToken(e.target.value)}
               className="admin-input"
@@ -487,13 +492,13 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
               className={`admin-tab ${activeTab === 'upload' ? 'active' : ''}`}
               onClick={() => setActiveTab('upload')}
             >
-              📤 Upload
+              📤 Publication
             </button>
             <button 
               className={`admin-tab ${activeTab === 'manage' ? 'active' : ''}`}
               onClick={() => setActiveTab('manage')}
             >
-              📋 Gérer
+              📋 Gestion
             </button>
           </div>
           <button className="admin-close" onClick={onClose}>✕</button>
@@ -505,25 +510,35 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
               <form onSubmit={handleUpload} className="admin-form">
                 <div className="form-group">
                   <label htmlFor="file">Image *</label>
-                  <input
-                    id="file"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileSelect}
-                    className="admin-input"
-                    required
-                  />
-                  {selectedFile && (
-                    <p className="file-info">✓ {selectedFile.name}</p>
+                  <div className="file-upload-wrapper">
+                    <input
+                      id="file"
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileSelect}
+                      className="file-input"
+                      required
+                    />
+                    <label htmlFor="file" className="file-upload-label">
+                      <span className="file-upload-icon">📸</span>
+                      <span className="file-upload-text">
+                        {selectedFile ? selectedFile.name : 'Choisir une image'}
+                      </span>
+                      <span className="file-upload-btn">Parcourir</span>
+                    </label>
+                  </div>
+                  {!selectedFile && (
+                    <p className="file-hint">Formats supportés : JPG, PNG, WebP</p>
                   )}
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="productNotes">Notes détails</label>
+                  <label htmlFor="productNotes">Notes détaillées</label>
                   <input
                     id="productNotes"
                     type="text"
-                    placeholder="Ex: Senteur florale, épicée..."
+                    placeholder="Ex: Senteur florale, épicée, notes boisées..."
                     value={productNotes}
                     onChange={(e) => setProductNotes(e.target.value)}
                     className="admin-input"
@@ -531,7 +546,7 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="productName">Nom du Produit</label>
+                  <label htmlFor="productName">Nom du produit *</label>
                   <input
                     id="productName"
                     type="text"
@@ -539,6 +554,7 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
                     value={productName}
                     onChange={(e) => setProductName(e.target.value)}
                     className="admin-input"
+                    required
                   />
                 </div>
 
@@ -546,11 +562,11 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
                   <label htmlFor="productDescription">Description</label>
                   <textarea
                     id="productDescription"
-                    placeholder="Décrire le produit..."
+                    placeholder="Décrire le produit, son histoire, son inspiration..."
                     value={productDescription}
                     onChange={(e) => setProductDescription(e.target.value)}
                     className="admin-input admin-textarea"
-                    rows={3}
+                    rows={4}
                   />
                 </div>
 
@@ -559,21 +575,21 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
                   <div className="composition-fields">
                     <input
                       type="text"
-                      placeholder="Notes de Tête (ex: Bergamote, Citron)"
+                      placeholder="Notes de Tête (ex: Bergamote, Citron, Fruits rouges)"
                       value={topNotes}
                       onChange={(e) => setTopNotes(e.target.value)}
                       className="admin-input"
                     />
                     <input
                       type="text"
-                      placeholder="Notes de Cœur (ex: Rose, Jasmin)"
+                      placeholder="Notes de Cœur (ex: Rose, Jasmin, Muguet)"
                       value={heartNotes}
                       onChange={(e) => setHeartNotes(e.target.value)}
                       className="admin-input"
                     />
                     <input
                       type="text"
-                      placeholder="Notes de Base (ex: Vanille, Musc)"
+                      placeholder="Notes de Base (ex: Vanille, Musc, Bois de Santal)"
                       value={baseNotes}
                       onChange={(e) => setBaseNotes(e.target.value)}
                       className="admin-input"
@@ -620,22 +636,31 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
                           setSelectedAudio(null)
                         }}
                       >
-                        ✕ Supprimer
+                        ✕ Supprimer l'enregistrement
                       </button>
                     </div>
                   )}
 
                   <div className="audio-or">ou</div>
-                  <input
-                    id="audio"
-                    type="file"
-                    accept="audio/*"
-                    onChange={handleAudioSelect}
-                    className="admin-input"
-                  />
-                  {selectedAudio && !recordedAudioUrl && (
-                    <p className="file-info">📁 {selectedAudio.name}</p>
-                  )}
+                  
+                  <div className="file-upload-wrapper">
+                    <input
+                      id="audio"
+                      ref={audioInputRef}
+                      type="file"
+                      accept="audio/*"
+                      onChange={handleAudioSelect}
+                      className="file-input"
+                    />
+                    <label htmlFor="audio" className="file-upload-label">
+                      <span className="file-upload-icon">🎵</span>
+                      <span className="file-upload-text">
+                        {selectedAudio && !recordedAudioUrl ? selectedAudio.name : 'Importer un fichier audio'}
+                      </span>
+                      <span className="file-upload-btn">Parcourir</span>
+                    </label>
+                  </div>
+                  <p className="file-hint">Formats supportés : MP3, M4A, WAV, OGG</p>
                 </div>
 
                 <button 
@@ -643,7 +668,7 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
                   className="admin-btn"
                   disabled={!selectedFile || uploading}
                 >
-                  {uploading ? 'Upload...' : 'Uploader'}
+                  {uploading ? 'Publication en cours...' : '📤 Publier le produit'}
                 </button>
               </form>
 
@@ -655,7 +680,7 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
 
               {uploadUrl && (
                 <div className="upload-result">
-                  <p className="result-label">URL image :</p>
+                  <p className="result-label">URL de l'image :</p>
                   <div className="url-box">
                     <input 
                       type="text" 
@@ -666,8 +691,9 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
                     <button 
                       className="copy-btn"
                       onClick={() => navigator.clipboard.writeText(uploadUrl)}
+                      title="Copier le lien"
                     >
-                      📋
+                      📋 Copier
                     </button>
                   </div>
                 </div>
@@ -681,6 +707,7 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
                   className="refresh-btn"
                   onClick={loadProducts}
                   disabled={loadingProducts}
+                  title="Actualiser la liste"
                 >
                   🔄
                 </button>
@@ -690,7 +717,7 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
               
               {editingProduct ? (
                 <div className="edit-form">
-                  <h4>Modifier: {editingProduct.name}</h4>
+                  <h4 className="edit-title">Modifier : {editingProduct.name}</h4>
                   <div className="form-group">
                     <label>Nom</label>
                     <input
@@ -698,6 +725,7 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
                       value={editName}
                       onChange={(e) => setEditName(e.target.value)}
                       className="admin-input"
+                      placeholder="Nom du produit"
                     />
                   </div>
                   <div className="form-group">
@@ -706,7 +734,8 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
                       value={editDescription}
                       onChange={(e) => setEditDescription(e.target.value)}
                       className="admin-input admin-textarea"
-                      rows={3}
+                      rows={4}
+                      placeholder="Description du produit"
                     />
                   </div>
                   <div className="edit-actions">
@@ -714,7 +743,7 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
                       className="admin-btn save-btn"
                       onClick={handleSaveEdit}
                     >
-                      💾 Sauvegarder
+                      💾 Enregistrer
                     </button>
                     <button 
                       className="admin-btn cancel-btn"
@@ -727,7 +756,7 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
               ) : (
                 <div className="products-list">
                   {products.length === 0 ? (
-                    <p className="no-products">Aucun produit</p>
+                    <p className="no-products">Aucun produit à afficher</p>
                   ) : (
                     products.map((product) => (
                       <div key={product.id} className="product-item">
@@ -735,18 +764,23 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
                         <div className="product-info">
                           <h4>{product.name}</h4>
                           <p>{product.description}</p>
-                          <small>ID: {product.id}</small>
+                          {product.notes && (
+                            <p className="product-notes">{product.notes}</p>
+                          )}
+                          <small>ID : {product.id}</small>
                         </div>
                         <div className="product-actions">
                           <button 
                             className="action-btn edit-btn"
                             onClick={() => handleEditProduct(product)}
+                            title="Modifier"
                           >
                             ✏️
                           </button>
                           <button 
                             className="action-btn delete-btn"
                             onClick={() => handleDeleteProduct(product.id)}
+                            title="Supprimer"
                           >
                             🗑️
                           </button>
@@ -776,7 +810,7 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
             setEditingProduct(null)
           }}
         >
-          Déconnexion
+          Se déconnecter
         </button>
       </div>
     </div>
