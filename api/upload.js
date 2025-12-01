@@ -19,6 +19,10 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "Missing file" })
   }
 
+  if (!publicId) {
+    return res.status(400).json({ error: "Missing publicId" })
+  }
+
   // Variables Cloudinary (depuis Vercel)
   const uploadPreset = process.env.CLOUDINARY_UPLOAD_PRESET
   const cloudName = process.env.CLOUDINARY_CLOUD_NAME
@@ -31,16 +35,16 @@ export default async function handler(req, res) {
   const uploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/upload`
 
   try {
-    // Créer URLSearchParams pour l'upload (compatible avec Cloudinary)
-    const params = new URLSearchParams()
-    params.append('file', `data:${fileType || 'image/jpeg'};base64,${file}`)
-    params.append('upload_preset', uploadPreset)
-    params.append('public_id', publicId)
-    params.append('folder', 'parfum')
+    // Construire le body avec URLSearchParams comme Cloudinary l'aime
+    const bodyData = new URLSearchParams()
+    bodyData.append('file', `data:${fileType || 'image/jpeg'};base64,${file}`)
+    bodyData.append('upload_preset', uploadPreset)
+    bodyData.append('public_id', publicId)
+    bodyData.append('folder', 'parfum')
 
     const response = await fetch(uploadUrl, {
       method: 'POST',
-      body: params
+      body: bodyData
     })
 
     const data = await response.json()
@@ -48,12 +52,11 @@ export default async function handler(req, res) {
     if (!response.ok) {
       console.error('Cloudinary error:', {
         status: response.status,
-        error: data.error,
+        cloudinary_error: data.error,
         message: data.message
       })
       return res.status(400).json({
-        error: data.error?.message || data.message || "Upload failed",
-        details: data.error
+        error: data.error?.message || data.message || "Upload failed"
       })
     }
 

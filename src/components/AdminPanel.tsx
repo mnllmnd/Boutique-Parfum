@@ -326,6 +326,12 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
       return
     }
 
+    // Vérifier la taille du fichier (max 5MB)
+    if (selectedFile.size > 5 * 1024 * 1024) {
+      setUploadStatus('❌ Fichier trop volumineux (max 5MB)')
+      return
+    }
+
     setUploading(true)
     setUploadStatus('Upload en cours...')
 
@@ -355,7 +361,8 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
       })
 
       if (!imageResponse.ok) {
-        throw new Error(`Erreur serveur: ${imageResponse.status}`)
+        const errorData = await imageResponse.json().catch(() => ({}))
+        throw new Error(`Erreur upload: ${imageResponse.status} - ${errorData.error || 'Unknown error'}`)
       }
 
       const imageData = await imageResponse.json()
@@ -390,9 +397,13 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
           if (audioResponse.ok) {
             const audioData = await audioResponse.json()
             audioUrl = audioData.url
+          } else {
+            const errorData = await audioResponse.json().catch(() => ({}))
+            console.error('Audio upload error:', errorData)
           }
         } catch (error) {
           console.error('Audio upload failed:', error)
+          setUploadStatus(`⚠️ Erreur audio: ${error instanceof Error ? error.message : 'Unknown'}`)
         }
       }
 
