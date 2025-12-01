@@ -39,8 +39,8 @@ export default async function handler(req, res) {
     const bodyData = new URLSearchParams()
     bodyData.append('file', `data:${fileType || 'image/jpeg'};base64,${file}`)
     bodyData.append('upload_preset', uploadPreset)
-    bodyData.append('public_id', publicId)
-    bodyData.append('folder', 'parfum')
+    // Utiliser folder/public_id format correct pour Cloudinary
+    bodyData.append('public_id', `parfum/${publicId}`)
 
     const response = await fetch(uploadUrl, {
       method: 'POST',
