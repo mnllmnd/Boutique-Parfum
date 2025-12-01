@@ -1,29 +1,20 @@
 export default async function handler(req, res) {
-  // Autoriser uniquement POST
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
-  // Vérification du mot de passe admin
   const auth = req.headers.authorization?.replace("Bearer ", "")
   const adminPassword = process.env.ADMIN_PASSWORD || process.env.ADMIN_TOKEN
-  
+
   if (auth !== adminPassword) {
     return res.status(401).json({ error: "Unauthorized" })
   }
 
-  // Récupération des données envoyées
   const { file, publicId, fileType } = req.body
 
-  if (!file) {
-    return res.status(400).json({ error: "Missing file" })
-  }
+  if (!file) return res.status(400).json({ error: "Missing file" })
+  if (!publicId) return res.status(400).json({ error: "Missing publicId" })
 
-  if (!publicId) {
-    return res.status(400).json({ error: "Missing publicId" })
-  }
-
-  // Variables Cloudinary (depuis Vercel)
   const uploadPreset = process.env.CLOUDINARY_UPLOAD_PRESET
   const cloudName = process.env.CLOUDINARY_CLOUD_NAME
 
@@ -31,16 +22,16 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: "Cloudinary not configured" })
   }
 
-  // URL API Cloudinary
   const uploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/upload`
 
   try {
-    // Construire le body avec URLSearchParams comme Cloudinary l'aime
     const bodyData = new URLSearchParams()
     bodyData.append('file', `data:${fileType || 'image/jpeg'};base64,${file}`)
     bodyData.append('upload_preset', uploadPreset)
-    // Utiliser folder/public_id format correct pour Cloudinary
-    bodyData.append('public_id', `parfum/${publicId}`)
+
+    // FIX : folder séparé + public_id simple
+    bodyData.append('folder', 'parfum')
+    bodyData.append('public_id', publicId)
 
     const response = await fetch(uploadUrl, {
       method: 'POST',
@@ -50,17 +41,12 @@ export default async function handler(req, res) {
     const data = await response.json()
 
     if (!response.ok) {
-      console.error('Cloudinary error:', {
-        status: response.status,
-        cloudinary_error: data.error,
-        message: data.message
-      })
+      console.error('Cloudinary error:', data)
       return res.status(400).json({
         error: data.error?.message || data.message || "Upload failed"
       })
     }
 
-    // Upload OK
     return res.status(200).json({
       url: data.secure_url,
       publicId: data.public_id
